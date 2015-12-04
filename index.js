@@ -14,9 +14,18 @@ var path = require('path');
  These files are created by filename pattern like [videoFilename.ext].temp.mpg [outputFilename.ext].temp.merged.mp4
  */
 
-var filename = './example/edit.json';
+var filename;
+if(process.argv.indexOf("-f") != -1){ //does our flag exist?
+      filename = process.argv[process.argv.indexOf("-f") + 1]; //grab the next item
+}
+else{
+  console.log("Mention a json file: node index.js -f example/edit.json");
+  process.exit(1);
+}
 
-var jsonfile = require(filename);
+//var filename = './example/edit.json';
+
+var jsonfile = JSON.parse(fs.readFileSync(filename, 'utf8'));
 if (jsonfile["edit"]["input"] && jsonfile["edit"]["output"]){
     var proc = ffmpeg()
         //.input(fourthFile)
