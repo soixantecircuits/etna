@@ -1,0 +1,6 @@
+{
+  "edit": {
+    "input":["calculatedmovements.mp4_c.mp4", "laplage.mp4_c.mp4", "rythm21.mp4_c.mp4"],
+    "output": "concat.mp4"
+  }
+}

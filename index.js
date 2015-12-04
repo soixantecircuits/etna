@@ -1,4 +1,6 @@
 var ffmpeg = require('fluent-ffmpeg');
+var fs = require('fs');
+var path = require('path');
 
 /*
  replicates this sequence of commands:
@@ -12,24 +14,25 @@ var ffmpeg = require('fluent-ffmpeg');
  These files are created by filename pattern like [videoFilename.ext].temp.mpg [outputFilename.ext].temp.merged.mp4
  */
 
-var firstFile = "example/calculatedmovements.mp4_c.mp4";
-var secondFile = "example/laplage.mp4_c.mp4";
-var thirdFile = "example/rythm21.mp4_c.mp4";
-var outPath = "example/concat.mp4";
+var filename = './example/edit.json';
 
-var proc = ffmpeg(firstFile)
-    .input(secondFile)
-    .input(thirdFile)
-    //.input(fourthFile)
-    //.input(...)
-    .audioCodec('libmp3lame')
-    .on('end', function() {
-      console.log('files have been merged succesfully');
-    })
-    .on('error', function(err, stdout, stderr) {
-      console.log('an error happened: ' + err.message, stdout, stderr);
-    })
-    .on('start', function(commandLine) {
-      console.log('Spawned Ffmpeg with command: ' + commandLine);
-    })
-    .mergeToFile(outPath);
+var jsonfile = require(filename);
+if (jsonfile["edit"]["input"] && jsonfile["edit"]["output"]){
+    var proc = ffmpeg()
+        //.input(fourthFile)
+        //.input(...)
+        .audioCodec('libmp3lame')
+        .on('end', function() {
+          console.log('files have been merged succesfully');
+        })
+        .on('error', function(err, stdout, stderr) {
+          console.log('an error happened: ' + err.message, stdout, stderr);
+        })
+        .on('start', function(commandLine) {
+          console.log('Spawned Ffmpeg with command: ' + commandLine);
+        });
+    jsonfile.edit.input.forEach(function (file){
+      proc.input(path.join(path.dirname(filename),file));
+    });
+    proc.mergeToFile(path.join(path.dirname(filename),jsonfile["edit"]["output"]));
+}
