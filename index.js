@@ -2,18 +2,6 @@ var ffmpeg = require('fluent-ffmpeg');
 var fs = require('fs');
 var path = require('path');
 
-/*
- replicates this sequence of commands:
-
- ffmpeg -i title.mp4 -qscale:v 1 intermediate1.mpg
- ffmpeg -i source.mp4 -qscale:v 1 intermediate2.mpg
- ffmpeg -i concat:"intermediate1.mpg|intermediate2.mpg" -c copy intermediate_all.mpg
- ffmpeg -i intermediate_all.mpg -qscale:v 2 output.mp4
-
- Create temporary .mpg files for each video and deletes them after merge is completed.
- These files are created by filename pattern like [videoFilename.ext].temp.mpg [outputFilename.ext].temp.merged.mp4
- */
-
 var filename;
 if(process.argv.indexOf("-f") != -1){ //does our flag exist?
       filename = process.argv[process.argv.indexOf("-f") + 1]; //grab the next item
@@ -23,13 +11,9 @@ else{
   process.exit(1);
 }
 
-//var filename = './example/edit.json';
-
 var jsonfile = JSON.parse(fs.readFileSync(filename, 'utf8'));
 if (jsonfile["edit"]["input"] && jsonfile["edit"]["output"]){
     var proc = ffmpeg()
-        //.input(fourthFile)
-        //.input(...)
         .audioCodec('libmp3lame')
         .on('end', function() {
           console.log('files have been merged succesfully');
