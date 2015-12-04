@@ -1,0 +1,32 @@
+{
+  "name": "etna",
+  "version": "1.0.0",
+  "description": "A tool for video editing with a json file",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "dependencies": {
+    "fluent-ffmpeg": "^2.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soixantecircuits/etna.git"
+  },
+  "keywords": [
+    "video",
+    "ffmpeg",
+    "edit",
+    "editing"
+  ],
+  "author": "Emmanuel Geoffray",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/soixantecircuits/etna/issues"
+  },
+  "homepage": "https://github.com/soixantecircuits/etna#readme"
+}
