@@ -1,0 +1,5 @@
+{
+  "zeroconf":{
+    "serviceName": "ff-recorder"
+  }
+}
