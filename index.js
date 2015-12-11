@@ -75,6 +75,63 @@ var jpg2mp4 = function(input, output, callback){
   });
 }
 
+var crop =  function(input, output, callback){
+  //ffmpeg -i steve.mp4 -filter:v "crop=1024:576:0:0" steve_1024.mp4
+  var proc = ffmpeg(input)
+    .audioCodec('libmp3lame')
+    .videoCodec('libx264')
+    .videoFilters('crop=1024:576:0:0')
+    .on('end', function() {
+      console.log('files have been cropped succesfully');
+      if (callback) return callback(null);
+    })
+    .on('error', function(err, stdout, stderr) {
+      console.log('an error happened: ' + err.message, stdout, stderr);
+    })
+    .on('start', function(commandLine) {
+      console.log('Spawned Ffmpeg with command: ' + commandLine);
+    })
+    .output(output)
+    .run();
+}
+
+var overlay =  function(input, output, callback){
+  var watermark = "example/gabarit_1024.mov";
+  var proc = ffmpeg(input)
+    .input(watermark)
+    .inputOptions('-vcodec qtrle')
+    .audioCodec('libmp3lame')
+    .videoCodec('libx264')
+    .complexFilter([
+
+      /*
+      // Duplicate rescaled stream 3 times into streams a, b, and c
+      {
+        filter: 'fade', options: 'out:25:24:alpha=1',
+        inputs: '1:0', outputs: 'wm'
+      },*/
+
+      // Create stream 'red' by removing green and blue channels from stream 'a'
+      {
+        filter: 'overlay', options: 'format=rgb',
+        //inputs: ['0:0', 'wm'], outputs: 'output'
+        inputs: ['0:0', '1:0'], outputs: 'output'
+      }], 'output')
+    .on('end', function() {
+      console.log('files have been overlayed succesfully');
+      if (callback) return callback(null);
+    })
+    .on('error', function(err, stdout, stderr) {
+      console.log('an error happened: ' + err.message, stdout, stderr);
+    })
+    .on('start', function(commandLine) {
+      console.log('Spawned Ffmpeg with command: ' + commandLine);
+    })
+    .output(output)
+    .run();
+
+}
+
 var jpg2mp4r = function(input, output, callback){
   var proc = exec('rename "s/\.X[a-zA-Z0-9]+/.jpg/" '+input+'*.X*');
   proc.stdout.on('data', function (data) {
@@ -87,8 +144,12 @@ var jpg2mp4r = function(input, output, callback){
 
   proc.on('close', function (code) {
       console.log('child process exited with code ' + code);
-      jpg2mp4(input, output, function(){
-        if (callback) return callback(null);
+      jpg2mp4(input, output+'-temp.mp4', function(){
+        crop(output+'-temp.mp4', output+'-temp2.mp4', function(){
+          overlay(output+'-temp2.mp4', output, function(){
+            if (callback) return callback(null);
+          });
+        });
       });
   });
   
@@ -96,6 +157,9 @@ var jpg2mp4r = function(input, output, callback){
 
 /*
 jpg2mp4r('/tmp/stream/', 'camera1.mp4', function(){
+  console.log("finished video");
+});
+overlay('camera-crop.mp4', 'camera-overlayed.mp4', function(){
   console.log("finished video");
 });
 */
