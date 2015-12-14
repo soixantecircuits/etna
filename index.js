@@ -150,7 +150,7 @@ var overlay2 =  function(input, output, callback){
         inputs: '0:0', outputs: 'mix1'
       },*/
       {
-        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=5:d=0.2:alpha=1,fade=out:st=6:d=0.2:alpha=1',
+        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=3:d=0.2:alpha=1,fade=out:st=3.5:d=0.2:alpha=1',
         inputs: '1:0', outputs: 'mix2'
       },
       {
@@ -158,7 +158,7 @@ var overlay2 =  function(input, output, callback){
         inputs: ['0:0', 'mix2'], outputs: 'mix3'
       },
       {
-        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=7:d=0.2:alpha=1,fade=out:st=8:d=0.2:alpha=1',
+        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=4.5:d=0.2:alpha=1,fade=out:st=9:d=0.2:alpha=1',
         inputs: '1:0', outputs: 'mix4'
       },
       {
@@ -166,7 +166,7 @@ var overlay2 =  function(input, output, callback){
         inputs: ['mix3', 'mix4'], outputs: 'mix5'
       },
       {
-        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=9:d=0.2:alpha=1,fade=out:st=11:d=0.2:alpha=1',
+        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=11:d=0.2:alpha=1,fade=out:st=13:d=0.2:alpha=1',
         inputs: '1:0', outputs: 'mix6'
       },
       {
@@ -228,7 +228,7 @@ overlay('camera-crop.mp4', 'camera-overlayed.mp4', function(){
   console.log("finished video");
 });
 */
-overlay2(['camera-KGaylb1yu-0.mp4', 'camera-KGaylb1yu-1.mp4'], 'shooting-KGaylb1yu.mp4', function(){
+//overlay2(['camera-KGaylb1yu-0.mp4', 'camera-KGaylb1yu-1.mp4'], 'shooting-KGaylb1yu.mp4', function(){
   console.log("finished video");
 });
 
