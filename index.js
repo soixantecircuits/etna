@@ -284,10 +284,9 @@ overlay('camera-crop.mp4', 'camera-overlayed.mp4', function(){
   console.log("finished video");
 });
 */
-//overlay2(['camera-KGaylb1yu-0.mp4', 'camera-KGaylb1yu-1.mp4'], 'shooting-KGaylb1yu.mp4', function(){
+/*overlay2(['camera-KGaylb1yu-0.mp4', 'camera-KGaylb1yu-1.mp4'], 'shooting-KGaylb1yu.mp4', function(){
   console.log("finished video");
-//});
-
+//});*/
 
 utils.connectToService(config.zeroconf.serviceName, function socketioInit(err, address, port) {
     var socket = io('http://' + address + ':' + port);
