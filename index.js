@@ -149,7 +149,9 @@ var overlay2 =  function(input, output, callback){
         filter: 'fade', options: 'in:0:5:alpha=1',
         inputs: '0:0', outputs: 'mix1'
       },*/
-      {
+// st= time wher the fadein starts
+// d= duration of the fadein
+/*      {
         filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=3:d=0.2:alpha=1,fade=out:st=3.5:d=0.2:alpha=1',
         inputs: '1:0', outputs: 'mix2'
       },
@@ -177,9 +179,63 @@ var overlay2 =  function(input, output, callback){
  //in:st=7:d=0.2:alpha=1,fade=out:st=8:d=0.2:alpha=1
       // Create stream 'red' by removing green and blue channels from stream 'a'
       {
-        filter: 'overlay', options: 'format=rgb,trim=duration=15',
+        filter: 'overlay', options: 'format=rgb,trim=duration=16.8', //edited from 15
         inputs: ['mix7', '2:0'], outputs: 'output'
-      }], 'output')
+      }], 'output')*/ // PREVIOUS FADE IN FADE OUT CONF
+      {
+        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=5:d=0.10:alpha=1,fade=out:st=5.31:d=0.10:alpha=1',
+        inputs: '1:0', outputs: 'mix2'
+      },
+      {
+        filter: 'overlay', options: 'format=rgb',
+        inputs: ['0:0', 'mix2'], outputs: 'mix3'
+      },
+      {
+        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=5.5:d=0.10:alpha=1,fade=out:st=5.81:d=0.10:alpha=1',
+        inputs: '1:0', outputs: 'mix4'
+      },
+      {
+        filter: 'overlay', options: 'format=rgb',
+        inputs: ['mix3', 'mix4'], outputs: 'mix5'
+      },
+      {
+        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=6.10:d=0.10:alpha=1,fade=out:st=6.40:d=0.10:alpha=1',
+        inputs: '1:0', outputs: 'mix6'
+      },
+      {
+        filter: 'overlay', options: 'format=rgb',
+        inputs: ['mix5', 'mix6'], outputs: 'mix7'
+      },
+      {
+        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=6.70:d=0.10:alpha=1,fade=out:st=7:d=0.10:alpha=1',
+        inputs: '0:0', outputs: 'mix8'
+      },
+      {
+        filter: 'overlay', options: 'format=rgb',
+        inputs: ['mix7', 'mix8'], outputs: 'mix9'
+      },
+      {
+        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=6.70:d=0.10:alpha=1,fade=out:st=9.67:d=0.10:alpha=1',
+        inputs: '1:0', outputs: 'mix10'
+      },
+      {
+        filter: 'overlay', options: 'format=rgb',
+        inputs: ['mix9', 'mix10'], outputs: 'mix11'
+      },
+      {
+        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=11.6:d=0.10:alpha=1,fade=out:st=12.7:d=0.10:alpha=1',
+        inputs: '1:0', outputs: 'mix12'
+      },
+      {
+        filter: 'overlay', options: 'format=rgb',
+        inputs: ['mix11', 'mix12'], outputs: 'mix13'
+      },
+ //in:st=7:d=0.2:alpha=1,fade=out:st=8:d=0.2:alpha=1
+      // Create stream 'red' by removing green and blue channels from stream 'a'
+      {
+        filter: 'overlay', options: 'format=rgb,trim=duration=16.8', //edited from 15
+        inputs: ['mix13', '2:0'], outputs: 'output'
+      }], 'output') // PREVIOUS FADE IN FADE OUT CONF 
     .on('end', function() {
       console.log('files have been overlayed succesfully');
       if (callback) return callback(null);
@@ -230,7 +286,7 @@ overlay('camera-crop.mp4', 'camera-overlayed.mp4', function(){
 */
 //overlay2(['camera-KGaylb1yu-0.mp4', 'camera-KGaylb1yu-1.mp4'], 'shooting-KGaylb1yu.mp4', function(){
   console.log("finished video");
-});
+//});
 
 
 utils.connectToService(config.zeroconf.serviceName, function socketioInit(err, address, port) {

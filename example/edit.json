@@ -1,6 +1,6 @@
 {
   "edit": {
-    "input":["calculatedmovements.mp4_c.mp4", "laplage.mp4_c.mp4", "rythm21.mp4_c.mp4"],
+    "input":["calculatedmovements.mp4", "laplage.mp4", "pacman.mov"],
     "output": "concat.mp4"
   }
 }
