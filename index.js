@@ -180,6 +180,7 @@ var overlay2 =  function(input, output, callback){
         filter: 'overlay', options: 'format=rgb,trim=duration=15',
         inputs: ['mix7', '2:0'], outputs: 'output'
       }], 'output')
+    .outputOptions('-pix_fmt yuv420p')
     .on('end', function() {
       console.log('files have been overlayed succesfully');
       if (callback) return callback(null);
@@ -228,10 +229,10 @@ overlay('camera-crop.mp4', 'camera-overlayed.mp4', function(){
   console.log("finished video");
 });
 */
-/*overlay2(['camera-KGaylb1yu-0.mp4', 'camera-KGaylb1yu-1.mp4'], 'shooting-KGaylb1yu.mp4', function(){
+overlay2(['camera-B_a@gBSEb-0.mp4', 'camera-B_a@gBSEb-1.mp4'], 'shooting-B_a@gBSEb.mp4', function(){
   console.log("finished video");
 });
-*/
+
 
 
 utils.connectToService(config.zeroconf.serviceName, function socketioInit(err, address, port) {
