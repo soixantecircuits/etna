@@ -135,6 +135,50 @@ var overlay =  function(input, output, callback){
 
 var overlay2 =  function(input, output, callback){
   var watermark = "example/gabarit_1024.mov";
+  /*
+  var timecodes = [
+    [3, 3.5],
+    [4.5, 9],
+    [11, 13],
+  ];
+  */
+  var timecodes = [
+    [5.3, 5.6],
+    [5.9, 6.2],
+    [7, 10],
+    [12, 13]
+  ];
+  var fade_duration = 0.2;
+
+  var complexFilter = [];
+  timecodes.forEach(function(element, i){
+    if (i == 0){
+      input0 = '0:0';
+      input1 = "mix" + i ;
+      output0 = "mix" + (i + 1);
+    }
+    else {
+      input0 = 'mix' + (i*2 - 1);
+      input1 = "mix" + (i*2);
+      output0 = "mix" + (i*2 + 1);
+    }
+
+    // st= time wher the fadein starts
+    // d= duration of the fadein
+    complexFilter.push({
+        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=' + element[0] + ':d='+fade_duration+':alpha=1,fade=out:st='+element[1]+':d='+fade_duration+':alpha=1',
+        inputs: '1:0', outputs: input1
+      },
+      {
+        filter: 'overlay', options: 'format=rgb',
+        inputs: [input0, input1], outputs: output0
+    })
+  });
+  complexFilter.push({
+      filter: 'overlay', options: 'format=rgb,trim=duration=16.8', //edited from 15
+      inputs: ['mix'+((timecodes.length-1)*2+1), '2:0'], outputs: 'output'
+  })
+  
   var proc = ffmpeg(input[0])
     .input(input[1])
     .input(watermark)
@@ -142,44 +186,7 @@ var overlay2 =  function(input, output, callback){
     .audioCodec('libmp3lame')
     .videoCodec('libx264')
     .fps(25)
-    .complexFilter([
-
-      // Duplicate rescaled stream 3 times into streams a, b, and c
-      /*{
-        filter: 'fade', options: 'in:0:5:alpha=1',
-        inputs: '0:0', outputs: 'mix1'
-      },*/
-      {
-        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=3:d=0.2:alpha=1,fade=out:st=3.5:d=0.2:alpha=1',
-        inputs: '1:0', outputs: 'mix2'
-      },
-      {
-        filter: 'overlay', options: 'format=rgb',
-        inputs: ['0:0', 'mix2'], outputs: 'mix3'
-      },
-      {
-        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=4.5:d=0.2:alpha=1,fade=out:st=9:d=0.2:alpha=1',
-        inputs: '1:0', outputs: 'mix4'
-      },
-      {
-        filter: 'overlay', options: 'format=rgb',
-        inputs: ['mix3', 'mix4'], outputs: 'mix5'
-      },
-      {
-        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=11:d=0.2:alpha=1,fade=out:st=13:d=0.2:alpha=1',
-        inputs: '1:0', outputs: 'mix6'
-      },
-      {
-        filter: 'overlay', options: 'format=rgb',
-        inputs: ['mix5', 'mix6'], outputs: 'mix7'
-      },
-
- //in:st=7:d=0.2:alpha=1,fade=out:st=8:d=0.2:alpha=1
-      // Create stream 'red' by removing green and blue channels from stream 'a'
-      {
-        filter: 'overlay', options: 'format=rgb,trim=duration=15',
-        inputs: ['mix7', '2:0'], outputs: 'output'
-      }], 'output')
+    .complexFilter(complexFilter, 'output')
     .outputOptions('-pix_fmt yuv420p')
     .on('end', function() {
       console.log('files have been overlayed succesfully');
@@ -228,10 +235,10 @@ jpg2mp4r('/tmp/stream/', 'camera1.mp4', function(){
 overlay('camera-crop.mp4', 'camera-overlayed.mp4', function(){
   console.log("finished video");
 });
-*/
 overlay2(['camera-B_a@gBSEb-0.mp4', 'camera-B_a@gBSEb-1.mp4'], 'shooting-B_a@gBSEb.mp4', function(){
   console.log("finished video");
 });
+*/
 
 
 
