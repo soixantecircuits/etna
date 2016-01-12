@@ -9,6 +9,8 @@ var mkdirp = require('mkdirp')
 const spacebroClient = require('spacebro-client')
 
 mkdirp(config.output.folder)
+var tmpfolder = '/tmp/videos/'
+mkdirp(tmpfolder)
 
 var filename
 if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
@@ -268,8 +270,10 @@ var actionList = [
         var x = (in_w - out_w) / 2.0
         var param = out_w + ':' + out_h + ':' + x + ':' + y
         var output = path.resolve(config.output.folder, path.basename(data.path))
-        crop(data.path, output, param, function () {
+        var output_temp = path.resolve(tmpfolder, path.basename(data.path))
+        crop(data.path, output_temp, param, function () {
           console.log('finished video ' + output)
+          var proc = exec('mv ' + output_temp + ' ' + output)
         })
       }
     }
