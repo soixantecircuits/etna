@@ -5,6 +5,10 @@ var exec = require('child_process').exec
 var utils = require('./utils')
 var config = require('./config.json')
 var io = require('socket.io-client')
+var mkdirp = require('mkdirp')
+const spacebroClient = require('spacebro-client')
+
+mkdirp(config.output.folder)
 
 var filename
 if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
@@ -72,13 +76,14 @@ var jpg2mp4 = function (input, output, callback) {
   })
 }
 
-var crop = function (input, output, callback) {
+var crop = function (input, output, params, callback) {
   // ffmpeg -i steve.mp4 -filter:v "crop=1024:576:0:0" steve_1024.mp4
+  params = params || '1024:576:0:0'
   ffmpeg(input)
     .audioCodec('libmp3lame')
     .videoCodec('libx264')
     .fps(25)
-    .videoFilters('crop=1024:576:0:0')
+    .videoFilters('crop=' + params)
     .on('end', function () {
       console.log('files have been cropped succesfully')
       if (callback) return callback(null)
@@ -211,7 +216,7 @@ var jpg2mp4r = function (input, output, callback) {
   proc.on('close', function (code) {
     console.log('child process exited with code ' + code)
     jpg2mp4(input, output + '-temp.mp4', function () {
-      crop(output + '-temp.mp4', output, function () {
+      crop(output + '-temp.mp4', output, '1024:576:0:0', function () {
         if (callback) return callback(null)
       /*
       overlay(output+'-temp2.mp4', output, function(){
@@ -233,33 +238,73 @@ overlay('camera-crop.mp4', 'camera-overlayed.mp4', function(){
 overlay2(['camera-B_a@gBSEb-0.mp4', 'camera-B_a@gBSEb-1.mp4'], 'shooting-B_a@gBSEb.mp4', function(){
   console.log("finished video")
 })
+var in_w = 1920
+var in_h = 1080
+var band_width = 180
+var out_h = in_h - band_width
+var out_w = out_h * 16 / 9.0
+var y = band_width
+var x = (in_w - out_w) / 2.0
+var param = out_w + ':' + out_h + ':' + x + ':' + y
+crop('example/manifeste.mp4', 'example/manifeste-crop.mp4', param, function () {
+  console.log('finished video')
+})
 */
 
-utils.connectToService(config.zeroconf.serviceName, function socketioInit (err, address, port) {
-  if (err) {
-    console.log(err.stack)
+var actionList = [
+  {
+    name: 'new-media',
+    trigger: function (data) {
+      if (data.path) {
+        console.log('new-media: ', data)
+
+        // todo: put that in a config.js file
+        var in_w = 1920
+        var in_h = 1080
+        var band_width = 180
+        var out_h = in_h - band_width
+        var out_w = out_h * 16 / 9.0
+        var y = band_width
+        var x = (in_w - out_w) / 2.0
+        var param = out_w + ':' + out_h + ':' + x + ':' + y
+        var output = path.resolve(config.output.folder, path.basename(data.path))
+        crop(data.path, output, param, function () {
+          console.log('finished video ' + output)
+        })
+      }
+    }
   }
-  var socket = io('http://' + address + ':' + port)
-  socket
-    .on('connect', function () {
-      console.log('socketio connected.')
-    })
-    .on('/etna/jpg2mp4r', function (data) {
-      jpg2mp4r(data.input, data.output, function () {
-        console.log('finished camera')
-        socket.emit('/ff-recorder-corner/jpg2mp4r-callback', data)
+]
+spacebroClient.registerToMaster(actionList, 'etna')
+
+// deprecated, use spacebro now
+if (config.zeroconf) {
+  utils.connectToService(config.zeroconf.serviceName, function socketioInit (err, address, port) {
+    if (err) {
+      console.log(err.stack)
+    }
+    var socket = io('http://' + address + ':' + port)
+    socket
+      .on('connect', function () {
+        console.log('socketio connected.')
       })
-    })
-    .on('/etna/overlay', function (data) {
-      overlay(data.input, data.output, function () {
-        console.log('finished video')
-        socket.emit('/ff-recorder-corner/overlay-callback', data)
+      .on('/etna/jpg2mp4r', function (data) {
+        jpg2mp4r(data.input, data.output, function () {
+          console.log('finished camera')
+          socket.emit('/ff-recorder-corner/jpg2mp4r-callback', data)
+        })
       })
-    })
-    .on('/etna/overlay2', function (data) {
-      overlay2(data.input, data.output, function () {
-        console.log('finished video')
-        socket.emit('/ff-recorder-corner/overlay2-callback', data)
+      .on('/etna/overlay', function (data) {
+        overlay(data.input, data.output, function () {
+          console.log('finished video')
+          socket.emit('/ff-recorder-corner/overlay-callback', data)
+        })
       })
-    })
-})
+      .on('/etna/overlay2', function (data) {
+        overlay2(data.input, data.output, function () {
+          console.log('finished video')
+          socket.emit('/ff-recorder-corner/overlay2-callback', data)
+        })
+      })
+  })
+}
