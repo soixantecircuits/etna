@@ -19,6 +19,12 @@ Install npm packages
 npm i
 ```
 
+Copy config.example.json to config.json
+
+```
+cp config.example.json config.json
+```
+
 ## Command-line
 
 You can use etna with the command line with a json file.
