@@ -242,13 +242,14 @@ overlay2(['camera-B_a@gBSEb-0.mp4', 'camera-B_a@gBSEb-1.mp4'], 'shooting-B_a@gBS
 })
 var in_w = 1920
 var in_h = 1080
-var band_width = 180
-var out_h = in_h - band_width
+var topbar_h = 110
+var bottombar_h = 6
+var out_h = in_h - (topbar_h + bottombar_h)
 var out_w = out_h * 16 / 9.0
-var y = band_width
+var y = topbar_h
 var x = (in_w - out_w) / 2.0
 var param = out_w + ':' + out_h + ':' + x + ':' + y
-crop('example/manifeste.mp4', 'example/manifeste-crop.mp4', param, function () {
+crop('example/laure.mp4', 'example/manifeste-crop.mp4', param, function () {
   console.log('finished video')
 })
 */
@@ -263,10 +264,11 @@ var actionList = [
         // todo: put that in a config.js file
         var in_w = 1920
         var in_h = 1080
-        var band_width = 180
-        var out_h = in_h - band_width
+        var topbar_h = 110
+        var bottombar_h = 6
+        var out_h = in_h - (topbar_h + bottombar_h)
         var out_w = out_h * 16 / 9.0
-        var y = band_width
+        var y = topbar_h
         var x = (in_w - out_w) / 2.0
         var param = out_w + ':' + out_h + ':' + x + ':' + y
         var output = path.resolve(config.output.folder, path.basename(data.path))
