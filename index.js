@@ -273,7 +273,7 @@ var actionList = [
         var output_temp = path.resolve(tmpfolder, path.basename(data.path))
         crop(data.path, output_temp, param, function () {
           console.log('finished video ' + output)
-          var proc = exec('mv ' + output_temp + ' ' + output)
+          exec('mv ' + output_temp + ' ' + output)
         })
       }
     }
