@@ -242,7 +242,7 @@ overlay2(['camera-B_a@gBSEb-0.mp4', 'camera-B_a@gBSEb-1.mp4'], 'shooting-B_a@gBS
 })
 var in_w = 1920
 var in_h = 1080
-var topbar_h = 110
+var topbar_h = 160
 var bottombar_h = 6
 var out_h = in_h - (topbar_h + bottombar_h)
 var out_w = out_h * 16 / 9.0
@@ -264,7 +264,7 @@ var actionList = [
         // todo: put that in a config.js file
         var in_w = 1920
         var in_h = 1080
-        var topbar_h = 110
+        var topbar_h = 160
         var bottombar_h = 6
         var out_h = in_h - (topbar_h + bottombar_h)
         var out_w = out_h * 16 / 9.0
