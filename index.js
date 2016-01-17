@@ -100,6 +100,42 @@ var crop = function (input, output, params, callback) {
     .run()
 }
 
+var crop_and_add_soundtrack = function (input, output, cropParams, audioOffset, callback) {
+  // ffmpeg -i steve.mp4 -filter:v "crop=1024:576:0:0" steve_1024.mp4
+  ffmpeg.ffprobe(input[0], function (err, data) {
+    if(err) {
+      console.err(err)
+    } else {
+      var duration = data.format.duration
+      var ss =  audioOffset - duration
+      cropParams = cropParams || '1024:576:0:0'
+      ffmpeg(input[0])
+        .input(input[1])
+        .inputOptions('-ss ' + ss)
+        .outputOptions('-map 0:v')
+        .outputOptions('-map 1:a')
+        .outputOptions('-shortest')
+        .outputOptions('-strict -2')
+        //.audioCodec('libmp3lame')
+        .videoCodec('libx264')
+        .fps(25)
+        .videoFilters('crop=' + cropParams)
+        .on('end', function () {
+          console.log('files have been cropped succesfully')
+          if (callback) return callback(null)
+        })
+        .on('error', function (err, stdout, stderr) {
+          console.log('an error happened: ' + err.message, stdout, stderr)
+        })
+        .on('start', function (commandLine) {
+          console.log('Spawned Ffmpeg with command: ' + commandLine)
+        })
+        .output(output)
+        .run()
+    }
+  })
+}
+
 var overlay = function (input, output, callback) {
   var watermark = 'example/gabarit_1024.mov'
   ffmpeg(input)
@@ -253,6 +289,48 @@ crop('example/laure.mp4', 'example/manifeste-crop.mp4', param, function () {
   console.log('finished video')
 })
 */
+/*
+var inputFile = 'example/laure.mp4'
+var audioFile = 'example/caruso.mp4'
+ffmpeg.ffprobe(inputFile, function (err, data) {
+  if(err) {
+    console.err(err)
+  } else {
+    var duration = data.format.duration
+    var audioOffset = 3 * 60 + 35.5
+    //var audioOffset = 3 * 60 + 33
+    var ss =  audioOffset - duration
+    params = '1024:576:0:0'
+    ffmpeg(inputFile)
+        .input(audioFile)
+        .inputOptions('-ss ' + ss)
+        //.outputOptions('-c copy')
+        .outputOptions('-map 0:v')
+        .outputOptions('-map 1:a')
+        .outputOptions('-shortest')
+        .outputOptions('-strict -2')
+        .videoFilters('crop=' + params)
+        .on('end', function () {
+          console.log('files have been overlayed succesfully')
+          // if (callback) return callback(null)
+        })
+        .on('error', function (err, stdout, stderr) {
+          console.log('an error happened: ' + err.message, stdout, stderr)
+        })
+        .on('start', function (commandLine) {
+          console.log('Spawned Ffmpeg with command: ' + commandLine)
+        })
+        .output('example/output-etna.mp4')
+        .run()
+
+  }
+})
+*/
+
+/*
+var audioOffset = 3 * 60 + 35.5
+crop_and_add_soundtrack(['example/laure.mp4', 'example/caruso.mp4'], 'example/output-etna.mp4', '1024:576:0:0', audioOffset) 
+*/
 
 var actionList = [
   {
@@ -273,7 +351,9 @@ var actionList = [
         var param = out_w + ':' + out_h + ':' + x + ':' + y
         var output = path.resolve(config.output.folder, path.basename(data.path))
         var output_temp = path.resolve(tmpfolder, path.basename(data.path))
-        crop(data.path, output_temp, param, function () {
+        var audioOffset = 3 * 60 + 35.5
+        //crop(data.path, output_temp, param, function () {
+        crop_and_add_soundtrack([data.path, 'example/caruso.mp4'], output_temp, param, audioOffset, function () { 
           console.log('finished video ' + output)
           exec('mv ' + output_temp + ' ' + output)
         })
