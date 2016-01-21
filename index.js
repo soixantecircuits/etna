@@ -352,8 +352,8 @@ var actionList = [
         var output = path.resolve(config.output.folder, path.basename(data.path))
         var output_temp = path.resolve(tmpfolder, path.basename(data.path))
         var audioOffset = 3 * 60 + 35.5
-        //crop(data.path, output_temp, param, function () {
-        crop_and_add_soundtrack([data.path, '/home/mina/sources/nodejs/soixante/etna/example/caruso.mp4'], output_temp, param, audioOffset, function () { 
+        crop(data.path, output_temp, param, function () {
+        //crop_and_add_soundtrack([data.path, '/home/mina/sources/nodejs/soixante/etna/example/caruso.mp4'], output_temp, param, audioOffset, function () { 
           console.log('finished video ' + output)
           exec('mv ' + output_temp + ' ' + output)
         })
