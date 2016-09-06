@@ -6,7 +6,7 @@ var utils = require('./utils')
 var config = require('./config.json')
 var io = require('socket.io-client')
 var mkdirp = require('mkdirp')
-const spacebroClient = require('spacebro-client')
+const spaceBro = require('spacebro-client')
 
 mkdirp(config.output.folder)
 var tmpfolder = '/tmp/videos/'
@@ -240,6 +240,47 @@ var overlay2 = function (input, output, callback) {
     .output(output)
     .run()
 }
+var pingpong = function (input, output, callback) {
+    var bitrate = 6000
+    var videoCodec = 'libx264'
+    outputOptions = [
+      '-movflags +faststart',
+      '-threads 0',
+      '-pix_fmt yuv420p',
+      //'-vcodec ' + bitrate + 'k',
+      '-maxrate ' + bitrate + 'k',
+      '-bufsize ' + 2 * bitrate + 'k'
+    ]
+    var command = ffmpeg()
+      .addInput(path.join(input,"%*.jpg"))
+
+    command
+      //.complexFilter(['overlay=shortest=1'])
+      .videoCodec(videoCodec)
+      .inputFPS(config.pingpong.inputFramerate)
+      .outputOptions(outputOptions)
+      .fps(25)
+      .on('error', function(err) {
+        console.log('An error occurred while merging: ', err);
+      })
+      .on('progress', function(progress) {
+        var date = Date();
+        console.log(date.substr(16, date.length) + ' - Processing generation');
+      })
+      .on('end', function() {
+        console.log('ffmpeg - finished to layer images');
+      })
+
+      if (config.pingpong.loops > 0) {
+        // ffmpeg -i out.mp4 -filter_complex "[0]reverse[r];[0][r]concat,loop=5:250,setpts=N/25/TB" output.mp4
+        console.log("use pingpong loops")
+        command.complexFilter([
+          '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/'+config.pingpong.inputFramerate+'/TB'
+        ])
+      }
+
+      command.save(output)
+}
 
 var jpg2mp4r = function (input, output, callback) {
   var proc = exec('rename "s/\.X[a-zA-Z0-9]+/.jpg/" ' + path.join(input, '*.X*'))
@@ -332,36 +373,34 @@ var audioOffset = 3 * 60 + 35.5
 crop_and_add_soundtrack(['example/laure.mp4', 'example/caruso.mp4'], 'example/output-etna.mp4', '1024:576:0:0', audioOffset) 
 */
 
-var actionList = [
-  {
-    name: 'new-media',
-    trigger: function (data) {
-      if (data.path) {
-        console.log('new-media: ', data)
+spaceBro.connect('localhost', 8888, {
+  clientName: 'etna',
+  channelName: 'zhaoxiangjs',
+  /*packers: [{ handler: function handler (args) {
+      return console.log(args.eventName, '=>', args.data)
+  } }],
+  unpackers: [{ handler: function handler (args) {
+      return console.log(args.eventName, '<=', args.data)
+  } }],*/
+  verbose: false,
+  sendBack: false
+})
 
-        // todo: put that in a config.js file
-        var in_w = 1920
-        var in_h = 1080
-        var topbar_h = 160
-        var bottombar_h = 6
-        var out_h = in_h - (topbar_h + bottombar_h)
-        var out_w = out_h * 16 / 9.0
-        var y = topbar_h
-        var x = (in_w - out_w) / 2.0
-        var param = out_w + ':' + out_h + ':' + x + ':' + y
-        var output = path.resolve(config.output.folder, path.basename(data.path))
-        var output_temp = path.resolve(tmpfolder, path.basename(data.path))
-        var audioOffset = 3 * 60 + 35.5
-        crop(data.path, output_temp, param, function () {
-        //crop_and_add_soundtrack([data.path, '/home/mina/sources/nodejs/soixante/etna/example/caruso.mp4'], output_temp, param, audioOffset, function () { 
-          console.log('finished video ' + output)
-          exec('mv ' + output_temp + ' ' + output)
-        })
-      }
-    }
+spaceBro.on ('album-saved', function (data) {
+  if (data.src) {
+    console.log('new album: ', data.src)
+    pingpong(data.src, path.join(config.output.folder, path.relative(path.dirname(data.src), data.src) + '.mp4'), function () {
+        console.log('finished video')
+    })
+
   }
-]
-spacebroClient.registerToMaster(actionList, 'etna')
+})
+
+setTimeout(function(){
+  spaceBro.emit('album-saved', {src:'/tmp/.temp/ej5isrwmt6w' } )
+  console.log('emit shoot')
+}, 300)
+
 
 // deprecated, use spacebro now
 if (config.zeroconf) {
