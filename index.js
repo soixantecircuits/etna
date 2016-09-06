@@ -240,6 +240,7 @@ var overlay2 = function (input, output, callback) {
     .output(output)
     .run()
 }
+
 var pingpong = function (input, output, callback) {
     var bitrate = 6000
     var videoCodec = 'libx264'
@@ -253,6 +254,7 @@ var pingpong = function (input, output, callback) {
     ]
     var command = ffmpeg()
       .addInput(path.join(input,"%*.jpg"))
+      .addInput("assets/watermark.png")
 
     command
       //.complexFilter(['overlay=shortest=1'])
@@ -275,7 +277,8 @@ var pingpong = function (input, output, callback) {
         // ffmpeg -i out.mp4 -filter_complex "[0]reverse[r];[0][r]concat,loop=5:250,setpts=N/25/TB" output.mp4
         console.log("use pingpong loops")
         command.complexFilter([
-          '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/'+config.pingpong.inputFramerate+'/TB'
+          '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/'+config.pingpong.inputFramerate+'/TB[pingpong]',
+          '[pingpong][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2'
         ])
       }
 
