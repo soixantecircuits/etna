@@ -278,7 +278,8 @@ var pingpong = function (input, output, callback) {
         console.log("use pingpong loops")
         command.complexFilter([
           '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/'+config.pingpong.inputFramerate+'/TB[pingpong]',
-          '[pingpong][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2'
+          '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0[c]',
+          '[c][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2'
         ])
       }
 
@@ -400,7 +401,7 @@ spaceBro.on ('album-saved', function (data) {
 })
 
 setTimeout(function(){
-  spaceBro.emit('album-saved', {src:'/tmp/.temp/ej5isrwmt6w' } )
+  spaceBro.emit('album-saved', {src:'/tmp/.temp/g6risryj7ef' } )
   console.log('emit shoot')
 }, 300)
 
