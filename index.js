@@ -248,6 +248,7 @@ var pingpong = function (input, output, callback) {
       '-movflags +faststart',
       '-threads 0',
       '-pix_fmt yuv420p',
+      //'-gifflags -transdiff -y',
       //'-vcodec ' + bitrate + 'k',
       '-maxrate ' + bitrate + 'k',
       '-bufsize ' + 2 * bitrate + 'k'
@@ -258,9 +259,7 @@ var pingpong = function (input, output, callback) {
 
     command
       //.complexFilter(['overlay=shortest=1'])
-      .videoCodec(videoCodec)
       .inputFPS(config.pingpong.inputFramerate)
-      .outputOptions(outputOptions)
       .fps(25)
       .on('error', function(err) {
         console.log('An error occurred while merging: ', err);
@@ -273,17 +272,22 @@ var pingpong = function (input, output, callback) {
         console.log('ffmpeg - finished to layer images');
       })
 
-      if (config.pingpong.loops > 0) {
-        // ffmpeg -i out.mp4 -filter_complex "[0]reverse[r];[0][r]concat,loop=5:250,setpts=N/25/TB" output.mp4
-        console.log("use pingpong loops")
-        command.complexFilter([
-          '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/'+config.pingpong.inputFramerate+'/TB[pingpong]',
-          '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0[c]',
-          '[c][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2'
-        ])
-      }
+    if (config.pingpong.loops > 0) {
+      // ffmpeg -i out.mp4 -filter_complex "[0]reverse[r];[0][r]concat,loop=5:250,setpts=N/25/TB" output.mp4
+      console.log("use pingpong loops")
+      command.complexFilter([
+        '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/'+config.pingpong.inputFramerate+'/TB[pingpong]',
+        '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0[c]',
+        '[c][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2,scale=640:640'
+      ])
+    }
+    if (config.pingpong.gif !== true) {
+      command
+        .videoCodec(videoCodec)
+        .outputOptions(outputOptions)
+    }
 
-      command.save(output)
+    command.save(output)
 }
 
 var jpg2mp4r = function (input, output, callback) {
@@ -393,7 +397,7 @@ spaceBro.connect('localhost', 8888, {
 spaceBro.on ('album-saved', function (data) {
   if (data.src) {
     console.log('new album: ', data.src)
-    pingpong(data.src, path.join(config.output.folder, path.relative(path.dirname(data.src), data.src) + '.mp4'), function () {
+    pingpong(data.src, path.join(config.output.folder, path.relative(path.dirname(data.src), data.src) + '.gif'), function () {
         console.log('finished video')
     })
 
@@ -401,8 +405,9 @@ spaceBro.on ('album-saved', function (data) {
 })
 
 setTimeout(function(){
-  spaceBro.emit('album-saved', {src:'/tmp/.temp/g6risryj7ef' } )
-  console.log('emit shoot')
+  //spaceBro.emit('album-saved', {src:'/tmp/.temp/g6risryj7ef' } )
+  spaceBro.emit('album-saved', {src:'/tmp/ad1ist2qkok' } )
+  console.log('emit ')
 }, 300)
 
 
