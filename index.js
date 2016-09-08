@@ -9,8 +9,7 @@ var mkdirp = require('mkdirp')
 const spaceBro = require('spacebro-client')
 
 mkdirp(config.output.folder)
-var tmpfolder = '/tmp/videos/'
-mkdirp(tmpfolder)
+mkdirp(config.output.temp)
 
 var filename
 if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
@@ -270,6 +269,7 @@ var pingpong = function (input, output, callback) {
       })
       .on('end', function() {
         console.log('ffmpeg - finished to layer images');
+        if (callback) return callback(null)
       })
 
     if (config.pingpong.loops > 0) {
@@ -397,7 +397,11 @@ spaceBro.connect('localhost', 8888, {
 spaceBro.on ('album-saved', function (data) {
   if (data.src) {
     console.log('new album: ', data.src)
-    pingpong(data.src, path.join(config.output.folder, path.relative(path.dirname(data.src), data.src) + '.gif'), function () {
+    var filename = path.relative(path.dirname(data.src), data.src) + '.gif'
+    var outputPath =  path.join(config.output.folder,filename)
+    var outputTempPath =  path.join(config.output.temp, filename)
+    pingpong(data.src, outputTempPath, function () {
+        exec('mv ' + outputTempPath + ' ' + outputPath)
         console.log('finished video')
     })
 
