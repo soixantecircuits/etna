@@ -1,5 +1,13 @@
 {
+  "host": "localhost",
+  "webport": 8866,
   "output":{
-    "folder": "./example"
+    "temp": "/tmp/etna",
+    "folder": "/opt/share/videos"
+  },
+  "pingpong":{
+    "gif": true,
+    "inputFramerate": 13,
+    "loops": 1
   }
 }

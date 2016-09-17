@@ -6,6 +6,8 @@ var utils = require('./utils')
 var config = require('./config.json')
 var io = require('socket.io-client')
 var mkdirp = require('mkdirp')
+var express = require('express')
+var ip = require('ip')
 const spaceBro = require('spacebro-client')
 
 mkdirp(config.output.folder)
@@ -36,6 +38,12 @@ if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
   // console.log("Mention a json file: node index.js -f example/edit.json")
   // process.exit(1)
 }
+
+
+app = express()
+app.use(express['static'](config.output.folder))
+app.listen(process.env.PORT || config.webport, config.host)
+console.log('Serving on http://'+config.host+':'+config.webport)
 
 var jpg2mp4 = function (input, output, callback) {
   // HACK USING EXEC INSTEAD OF FLUENT-FFMPEG because there is an issue with spawn and wildcards (*) which are not populated.
@@ -440,6 +448,7 @@ spaceBro.on ('album-saved', function (data) {
     pingpong(data.src, outputTempPath, function () {
         exec('mv ' + outputTempPath + ' ' + outputPath)
         console.log('finished video')
+        spaceBro.emit('video-saved', {src: 'http://'+config.host + ':' + config.webport + '/' + path.basename(outputPath)})
     })
 
   }
@@ -452,6 +461,7 @@ setTimeout(function(){
 }, 300)
 */
 
+/*
 var data = {src:'/opt/share/tmp/.temp/1qar1wfit4786on'}
 var filename = path.relative(path.dirname(data.src), data.src) + '.mp4'
 var outputPath =  path.join(config.output.folder,filename)
@@ -460,7 +470,7 @@ png2prores(data.src, outputTempPath, function () {
     exec('mv ' + outputTempPath + ' ' + outputPath)
     console.log('finished video')
 })
-
+*/
 // deprecated, use spacebro now
 if (config.zeroconf) {
   utils.connectToService(config.zeroconf.serviceName, function socketioInit (err, address, port) {
