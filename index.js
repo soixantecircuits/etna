@@ -262,12 +262,16 @@ var pingpong = function (input, output, callback) {
     ]
     var command = ffmpeg()
       .addInput(path.join(input,"%*.jpg"))
-      .addInput("assets/watermark.png")
+      //.addInput("assets/watermark.png")
+      //.addInput("assets/ok-vrai-3D-incrust.mov")
 
     command
       //.complexFilter(['overlay=shortest=1'])
       .inputFPS(config.pingpong.inputFramerate)
       .fps(25)
+      .on('start', function (commandLine) {
+        console.log('Spawned Ffmpeg with command: ' + commandLine)
+      })
       .on('error', function(err) {
         console.log('An error occurred while merging: ', err);
       })
@@ -284,11 +288,11 @@ var pingpong = function (input, output, callback) {
       // ffmpeg -i out.mp4 -filter_complex "[0]reverse[r];[0][r]concat,loop=5:250,setpts=N/25/TB" output.mp4
       console.log("use pingpong loops")
       command.complexFilter([
-        '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/'+config.pingpong.inputFramerate+'/TB[pingpong]',
-        //'[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0[c]',
-        //'[c][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2,scale=640:640'
+        '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/'+config.pingpong.inputFramerate+'/TB,scale=640:640[pingpong]',
+        '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0[c]',
+        '[c][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2+100'
         //'[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0,scale=640:640',
-        '[pingpong]scale=iw/2:ih/2',
+        //'[pingpong]scale=iw/2:ih/2',
       ])
     }
     if (config.pingpong.gif !== true) {
@@ -320,6 +324,9 @@ var pingpongRaw = function (input, output, callback) {
       //.complexFilter(['overlay=shortest=1'])
       .inputFPS(config.pingpong.inputFramerate)
       .fps(25)
+      .on('start', function (commandLine) {
+        console.log('Spawned Ffmpeg with command: ' + commandLine)
+      })
       .on('error', function(err) {
         console.log('An error occurred while merging: ', err);
       })
@@ -478,7 +485,8 @@ var audioOffset = 3 * 60 + 35.5
 crop_and_add_soundtrack(['example/laure.mp4', 'example/caruso.mp4'], 'example/output-etna.mp4', '1024:576:0:0', audioOffset) 
 */
 
-spaceBro.connect('localhost', 8888, {
+//spaceBro.connect('localhost', 8888, {
+spaceBro.connect('spacebro.space', 3333, {
   clientName: 'etna',
   channelName: 'zhaoxiangjs',
   /*packers: [{ handler: function handler (args) {
@@ -494,7 +502,7 @@ spaceBro.connect('localhost', 8888, {
 spaceBro.on ('album-saved', function (data) {
   if (data.src) {
     console.log('new album: ', data.src)
-    var filename = path.relative(path.dirname(data.src), data.src) + '.gif'
+    var filename = path.relative(path.dirname(data.src), data.src) + '.mp4'
     var outputPath =  path.join(config.output.folder,filename)
     var outputTempPath =  path.join(config.output.temp, filename)
     if (data.raw) {
@@ -514,7 +522,7 @@ spaceBro.on ('album-saved', function (data) {
 })
 setTimeout(function(){
   //spaceBro.emit('album-saved', {src:'/tmp/.temp/g6risryj7ef' } )
-  spaceBro.emit('album-saved', {src:'/opt/share/tmp/.temp/158itbcuwmm', raw: false } )
+  spaceBro.emit('album-saved', {src:'/home/emmanuel/Downloads/Calib Düsseldorf', raw: false } )
   console.log('emit ')
 }, 300)
 
