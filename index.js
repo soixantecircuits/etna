@@ -72,31 +72,26 @@ spaceBro.connect(config.spacebro.host, config.spacebro.port, {
   sendBack: false
 })
 
+config.spacebro.inputMessage = config.spacebro.inputMessage || 'new-media-for-etna'
+config.spacebro.outputMessage = config.spacebro.outputMessage || 'new-media-from-etna'
 // 'new-media' data.recipe, data.input, data.output
-spaceBro.on ('new-media-for-etna', function (data) {
+spaceBro.on (config.spacebro.inputMessage, function (data) {
   if (data.input) {
     data.output = data.output || path.join(config.output.folder, path.basename(data.input))
     data.outputTempPath =  data.outputTempPath || path.join(config.output.temp, path.basename(data.output))
   }
-  crop.crop(data, function () {
+  data.recipe = data.recipe || config.recipe
+  //var recipe = crop[data.recipe] || cosmos[data.recipe]
+  //recipe(data, function () {
+  cosmos[data.recipe](data, function () {
     exec('mv ' + data.outputTempPath + ' ' + data.output)
     console.log('finished video ' + data.output)
     data.src = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(data.output)
-    spaceBro.emit('new-media-from-etna', data)
+    spaceBro.emit(config.spacebro.outputMessage, data)
   })
 
 })
 
-spaceBro.on ('album-saved', function (data) {
-  if (data.src) {
-    console.log('new album: ', data.src)
-    cosmos.albumSaved(data, function () {
-        exec('mv ' + outputTempPath + ' ' + outputPath)
-        console.log('finished video')
-        spaceBro.emit('video-saved', {src: 'http://'+config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(outputPath)})
-    })
-  }
-})
 setTimeout(function(){
   //spaceBro.emit('album-saved', {src:'/tmp/.temp/g6risryj7ef' } )
   spaceBro.emit('album-saved', {src:'/home/emmanuel/Videos/1qar15risvj4r3p', raw: false } )

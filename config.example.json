@@ -3,8 +3,11 @@
     "host": "spacebro.space",
     "port": 3333,
     "clientName": "etna",
-    "channelName": "zhaoxianjs"
+    "channelName": "zhaoxianjs",
+    "inputMessage": "new-media-for-etna",
+    "outputMessage": "new-media-from-etna"
   },
+  "recipe": "albumSaved",
   "staticServer":{
     "host": "localhost",
     "port": 8866
