@@ -1,6 +1,14 @@
 {
-  "host": "localhost",
-  "webport": 8866,
+  "spacebro":{
+    "host": "spacebro.space",
+    "port": 3333,
+    "clientName": "etna",
+    "channelName": "zhaoxianjs"
+  },
+  "staticServer":{
+    "host": "localhost",
+    "port": 8866
+  },
   "output":{
     "temp": "/tmp/etna",
     "folder": "/opt/share/videos"
