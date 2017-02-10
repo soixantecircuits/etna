@@ -72,25 +72,29 @@ spaceBro.connect(config.spacebro.host, config.spacebro.port, {
   sendBack: false
 })
 
+// 'new-media' data.recipe, data.input, data.output
+spaceBro.on ('new-media-for-etna', function (data) {
+  if (data.input) {
+    data.output = data.output || path.join(config.output.folder, path.basename(data.input))
+    data.outputTempPath =  data.outputTempPath || path.join(config.output.temp, path.basename(data.output))
+  }
+  crop.crop(data, function () {
+    exec('mv ' + data.outputTempPath + ' ' + data.output)
+    console.log('finished video ' + data.output)
+    data.src = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(data.output)
+    spaceBro.emit('new-media-from-etna', data)
+  })
+
+})
+
 spaceBro.on ('album-saved', function (data) {
   if (data.src) {
     console.log('new album: ', data.src)
-    var filename = path.relative(path.dirname(data.src), data.src) + '.mp4'
-    var outputPath =  path.join(config.output.folder,filename)
-    var outputTempPath =  path.join(config.output.temp, filename)
-    if (data.raw) {
-      cosmos.pingpongRaw(data.src, outputTempPath, function () {
-          exec('mv ' + outputTempPath + ' ' + outputPath)
-          console.log('finished video')
-          spaceBro.emit('video-saved', {src: 'http://'+config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(outputPath)})
-      })
-    } else {
-      cosmos.pingpong(data.src, outputTempPath, function () {
-          exec('mv ' + outputTempPath + ' ' + outputPath)
-          console.log('finished video')
-          spaceBro.emit('video-saved', {src: 'http://'+config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(outputPath)})
-      })
-    }
+    cosmos.albumSaved(data, function () {
+        exec('mv ' + outputTempPath + ' ' + outputPath)
+        console.log('finished video')
+        spaceBro.emit('video-saved', {src: 'http://'+config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(outputPath)})
+    })
   }
 })
 setTimeout(function(){
@@ -109,34 +113,3 @@ png2prores(data.src, outputTempPath, function () {
     console.log('finished video')
 })
 */
-// deprecated, use spacebro now
-if (config.zeroconf) {
-  utils.connectToService(config.zeroconf.serviceName, function socketioInit (err, address, port) {
-    if (err) {
-      console.log(err.stack)
-    }
-    var socket = io('http://' + address + ':' + port)
-    socket
-      .on('connect', function () {
-        console.log('socketio connected.')
-      })
-      .on('/etna/jpg2mp4r', function (data) {
-        jpg2mp4r(data.input, data.output, function () {
-          console.log('finished camera')
-          socket.emit('/ff-recorder-corner/jpg2mp4r-callback', data)
-        })
-      })
-      .on('/etna/overlay', function (data) {
-        overlay(data.input, data.output, function () {
-          console.log('finished video')
-          socket.emit('/ff-recorder-corner/overlay-callback', data)
-        })
-      })
-      .on('/etna/overlay2', function (data) {
-        overlay2(data.input, data.output, function () {
-          console.log('finished video')
-          socket.emit('/ff-recorder-corner/overlay2-callback', data)
-        })
-      })
-  })
-}

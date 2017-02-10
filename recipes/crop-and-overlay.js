@@ -1,9 +1,11 @@
 'use strict';
 module.exports = {
 
-  crop: function (input, output, params, callback) {
+  crop: function (data, callback) {
+    var input = data.input
+    var output = data.outputTempPath
     // ffmpeg -i steve.mp4 -filter:v "crop=1024:576:0:0" steve_1024.mp4
-    params = params || '1024:576:0:0'
+    data.params = data.params || '1024:576:0:0'
     ffmpeg(input)
       .audioCodec('libmp3lame')
       .videoCodec('libx264')
@@ -22,15 +24,18 @@ module.exports = {
       .output(output)
       .run()
   },
-  crop_and_add_soundtrack: function (input, output, cropParams, audioOffset, callback) {
+  crop_and_add_soundtrack: function (data, callback) {
+    var input = [data.input, data.audio]
+    var output = data.outputTempPath
     // ffmpeg -i steve.mp4 -filter:v "crop=1024:576:0:0" steve_1024.mp4
-    ffmpeg.ffprobe(input[0], function (err, data) {
+    ffmpeg.ffprobe(input[0], function (err, videodata) {
       if(err) {
         console.err(err)
       } else {
-        var duration = data.format.duration
-        var ss =  audioOffset - duration
-        cropParams = cropParams || '1024:576:0:0'
+        var duration = videodata.format.duration
+        data.audioOffset = data.audioOffset || 0
+        var ss =  data.audioOffset - duration
+        data.cropParams = data.cropParams || '1024:576:0:0'
         ffmpeg(input[0])
           .input(input[1])
           .inputOptions('-ss ' + ss)
@@ -57,8 +62,10 @@ module.exports = {
       }
     })
   },
-  overlay: function (input, output, callback) {
-    var watermark = 'example/gabarit_1024.mov'
+  overlay: function (data, callback) {
+    var input = data.input
+    var output = data.outputTempPath
+    var watermark = data.watermak || 'example/gabarit_1024.mov'
     ffmpeg(input)
       .input(watermark)
       .inputOptions('-vcodec qtrle')
@@ -92,8 +99,10 @@ module.exports = {
       .output(output)
       .run()
   },
-  overlay2: function (input, output, callback) {
-    var watermark = 'example/gabarit_1024.mov'
+  overlay2: function (data, callback) {
+    var input = data.input
+    var output = data.outputTempPath
+    var watermark = data.watermark || 'example/gabarit_1024.mov'
     /*
     var timecodes = [
       [3, 3.5],

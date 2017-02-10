@@ -3,7 +3,21 @@ var ffmpeg = require('fluent-ffmpeg')
 var path = require('path')
 var config = require('./../config.json')
 module.exports = {
-  pingpong: function (input, output, callback) {
+  albumSaved: function (data, callback) {
+    data.input = data.src
+    var filename = path.relative(path.dirname(data.src), data.src) + '.mp4'
+    data.output =  path.join(config.output.folder,filename)
+    data.outputTempPath =  path.join(config.output.temp, filename)
+
+    if (data.raw) {
+      this.pingpongRaw(data, callback)
+    } else {
+      this.pingpong(data, callback)
+    }
+  },
+  pingpong: function (data, callback) {
+    var input = data.input
+    var output = data.outputTempPath
     var bitrate = 6000
     var videoCodec = 'libx264'
     var outputOptions = [
@@ -59,7 +73,9 @@ module.exports = {
     command.save(output)
   },
 
-  pingpongRaw: function (input, output, callback) {
+  pingpongRaw: function (data, callback) {
+    var input = data.input
+    var output = data.outputTempPath
     var bitrate = 6000
     var videoCodec = 'libx264'
     var outputOptions = [
@@ -113,7 +129,9 @@ module.exports = {
     command.save(output)
   },
 
-  png2prores: function (input, output, callback) {
+  png2prores: function (data, callback) {
+    var input = data.input
+    var output = data.outputTempPath
     var bitrate = 6000
     var videoCodec = 'libx264'
     var outputOptions = [
