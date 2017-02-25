@@ -3,10 +3,8 @@ var fs = require('fs')
 var path = require('path')
 var exec = require('child_process').exec
 var config = require('./config.json')
-var io = require('socket.io-client')
 var mkdirp = require('mkdirp')
 var express = require('express')
-var ip = require('ip')
 const spaceBro = require('spacebro-client')
 
 var recipes = require('./recipes')
