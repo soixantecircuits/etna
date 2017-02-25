@@ -9,7 +9,7 @@ const spaceBro = require('spacebro-client')
 
 var recipes = require('./recipes')
 
-mkdirp(config.output.folder);
+mkdirp(config.output.folder)
 mkdirp(config.output.temp)
 
 var filename
@@ -38,12 +38,11 @@ if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
   // process.exit(1)
 }
 
-
 // init static server to serve generated files
 config.staticServer = config.staticServer || {}
 config.staticServer.host = config.staticServer.host || 'localhost'
 config.staticServer.port = config.staticServer.port || 8866
-app = express()
+var app = express()
 app.use(express['static'](config.output.folder))
 app.listen(process.env.PORT || config.staticServer.port, config.staticServer.host)
 console.log('Serving on http://' + config.staticServer.host + ':' + config.staticServer.port)
@@ -58,12 +57,12 @@ config.spacebro.channelName = config.spacebro.channelName || 'etna'
 spaceBro.connect(config.spacebro.host, config.spacebro.port, {
   clientName: config.spacebro.clientName,
   channelName: config.spacebro.channelName,
-  /*packers: [{ handler: function handler (args) {
+  /* packers: [{ handler: function handler (args) {
       return console.log(args.eventName, '=>', args.data)
   } }],
   unpackers: [{ handler: function handler (args) {
       return console.log(args.eventName, '<=', args.data)
-  } }],*/
+  } }], */
   verbose: false,
   sendBack: false
 })
@@ -72,10 +71,10 @@ config.spacebro.inputMessage = config.spacebro.inputMessage || 'new-media-for-et
 config.spacebro.outputMessage = config.spacebro.outputMessage || 'new-media-from-etna'
 // TODO: document 'new-media' data.recipe, data.input, data.output
 // add data.options, like the path for an image to watermark, framerate, ...
-spaceBro.on (config.spacebro.inputMessage, function (data) {
+spaceBro.on(config.spacebro.inputMessage, function (data) {
   if (data.input) {
     data.output = data.output || path.join(config.output.folder, path.basename(data.input))
-    data.outputTempPath =  data.outputTempPath || path.join(config.output.temp, path.basename(data.output))
+    data.outputTempPath = data.outputTempPath || path.join(config.output.temp, path.basename(data.output))
   }
   data.recipe = data.recipe || config.recipe
   var recipeFn = recipes.recipe(data.recipe)
@@ -85,12 +84,11 @@ spaceBro.on (config.spacebro.inputMessage, function (data) {
     data.src = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(data.output)
     spaceBro.emit(config.spacebro.outputMessage, data)
   })
-
 })
 
-setTimeout(function(){
-  //spaceBro.emit('album-saved', {src:'/tmp/.temp/g6risryj7ef' } )
-  spaceBro.emit('album-saved', {src:'/home/emmanuel/Videos/1qar15risvj4r3p', raw: false } )
+setTimeout(function () {
+  // spaceBro.emit('album-saved', {src:'/tmp/.temp/g6risryj7ef' } )
+  spaceBro.emit('album-saved', { src: '/home/emmanuel/Videos/1qar15risvj4r3p', raw: false })
   console.log('emit ')
 }, 300)
 
