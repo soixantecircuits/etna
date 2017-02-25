@@ -74,16 +74,18 @@ spaceBro.connect(config.spacebro.host, config.spacebro.port, {
 
 config.spacebro.inputMessage = config.spacebro.inputMessage || 'new-media-for-etna'
 config.spacebro.outputMessage = config.spacebro.outputMessage || 'new-media-from-etna'
-// 'new-media' data.recipe, data.input, data.output
+// TODO: document 'new-media' data.recipe, data.input, data.output
+// add data.options, like the path for an image to watermak
 spaceBro.on (config.spacebro.inputMessage, function (data) {
   if (data.input) {
     data.output = data.output || path.join(config.output.folder, path.basename(data.input))
     data.outputTempPath =  data.outputTempPath || path.join(config.output.temp, path.basename(data.output))
   }
   data.recipe = data.recipe || config.recipe
-  //var recipe = crop[data.recipe] || cosmos[data.recipe]
-  //recipe(data, function () {
-  cosmos[data.recipe](data, function () {
+  // TODO: find and import files in recipes folder
+  // TIP: check how it is done in smilecooker
+  var recipeFn = crop[data.recipe] || cosmos[data.recipe]
+  recipeFn(data, function () {
     exec('mv ' + data.outputTempPath + ' ' + data.output)
     console.log('finished video ' + data.output)
     data.src = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(data.output)

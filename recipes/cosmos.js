@@ -2,20 +2,8 @@
 var ffmpeg = require('fluent-ffmpeg')
 var path = require('path')
 var config = require('./../config.json')
-module.exports = {
-  albumSaved: function (data, callback) {
-    data.input = data.src
-    var filename = path.relative(path.dirname(data.src), data.src) + '.mp4'
-    data.output =  path.join(config.output.folder,filename)
-    data.outputTempPath =  path.join(config.output.temp, filename)
 
-    if (data.raw) {
-      this.pingpongRaw(data, callback)
-    } else {
-      this.pingpong(data, callback)
-    }
-  },
-  pingpong: function (data, callback) {
+var pingpong = function (data, callback) {
     var input = data.input
     var output = data.outputTempPath
     var bitrate = 6000
@@ -32,7 +20,7 @@ module.exports = {
     var command = ffmpeg()
       .addInput(path.join(input,"%*.jpg"))
       //.addInput("assets/watermark.png")
-      //.addInput("assets/ok-vrai-3D-incrust.mov")
+      .addInput("assets/ok-vrai-3D-incrust.mov")
 
     command
       //.complexFilter(['overlay=shortest=1'])
@@ -71,9 +59,9 @@ module.exports = {
     }
 
     command.save(output)
-  },
+  }
 
-  pingpongRaw: function (data, callback) {
+  var pingpongRaw = function (data, callback) {
     var input = data.input
     var output = data.outputTempPath
     var bitrate = 6000
@@ -127,9 +115,9 @@ module.exports = {
     }
 
     command.save(output)
-  },
+  }
 
-  png2prores: function (data, callback) {
+  var png2prores = function (data, callback) {
     var input = data.input
     var output = data.outputTempPath
     var bitrate = 6000
@@ -165,6 +153,21 @@ module.exports = {
       //.outputOptions(outputOptions)
 
     command.save(output)
-  },
+  }
 
+module.exports = {
+  albumSaved: function (data, callback) {
+    data.input = data.src
+    var filename = path.relative(path.dirname(data.src), data.src) + '.mp4'
+    data.output =  path.join(config.output.folder,filename)
+    data.outputTempPath =  path.join(config.output.temp, filename)
+
+    if (data.raw) {
+      pingpongRaw(data, callback)
+    } else {
+      pingpong(data, callback)
+    }
+  },
+  pingpong: pingpong,
+  pingpongRaw: pingpongRaw
 };
