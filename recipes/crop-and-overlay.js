@@ -1,6 +1,5 @@
 'use strict';
 module.exports = {
-
   crop: function (data, callback) {
     var input = data.input
     var output = data.outputTempPath

@@ -10,8 +10,7 @@ var express = require('express')
 var ip = require('ip')
 const spaceBro = require('spacebro-client')
 
-var crop = require('./recipes/crop-and-overlay')
-var cosmos = require('./recipes/cosmos')
+var recipes = require('./recipes')
 
 mkdirp(config.output.folder)
 mkdirp(config.output.temp)
@@ -75,16 +74,14 @@ spaceBro.connect(config.spacebro.host, config.spacebro.port, {
 config.spacebro.inputMessage = config.spacebro.inputMessage || 'new-media-for-etna'
 config.spacebro.outputMessage = config.spacebro.outputMessage || 'new-media-from-etna'
 // TODO: document 'new-media' data.recipe, data.input, data.output
-// add data.options, like the path for an image to watermak
+// add data.options, like the path for an image to watermark, framerate, ...
 spaceBro.on (config.spacebro.inputMessage, function (data) {
   if (data.input) {
     data.output = data.output || path.join(config.output.folder, path.basename(data.input))
     data.outputTempPath =  data.outputTempPath || path.join(config.output.temp, path.basename(data.output))
   }
   data.recipe = data.recipe || config.recipe
-  // TODO: find and import files in recipes folder
-  // TIP: check how it is done in smilecooker
-  var recipeFn = crop[data.recipe] || cosmos[data.recipe]
+  var recipeFn = recipes.recipe(data.recipe)
   recipeFn(data, function () {
     exec('mv ' + data.outputTempPath + ' ' + data.output)
     console.log('finished video ' + data.output)
