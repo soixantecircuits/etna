@@ -13,7 +13,7 @@ exports.recipe = function (name) {
     if (!fn) {
 			fn = exports[key][name]
     } else if (exports[key][name]) {
-			console.warn('There is two functions named ' + name + '. One was randomly picked. You should clean your recipes.')
+			console.warn('There are multiple functions named ' + name + '. One was randomly picked, and it is not the one from ' + key + '. You should clean your recipes.')
 		}
   }
   if (!fn) {
