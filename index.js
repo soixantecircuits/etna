@@ -2,7 +2,6 @@ var ffmpeg = require('fluent-ffmpeg')
 var fs = require('fs')
 var path = require('path')
 var exec = require('child_process').exec
-var utils = require('./utils')
 var config = require('./config.json')
 var io = require('socket.io-client')
 var mkdirp = require('mkdirp')
@@ -12,7 +11,7 @@ const spaceBro = require('spacebro-client')
 
 var recipes = require('./recipes')
 
-mkdirp(config.output.folder)
+mkdirp(config.output.folder);
 mkdirp(config.output.temp)
 
 var filename
