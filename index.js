@@ -85,20 +85,3 @@ spaceBro.on(config.spacebro.inputMessage, function (data) {
     spaceBro.emit(config.spacebro.outputMessage, data)
   })
 })
-
-setTimeout(function () {
-  // spaceBro.emit('album-saved', {src:'/tmp/.temp/g6risryj7ef' } )
-  spaceBro.emit('album-saved', { src: '/home/emmanuel/Videos/1qar15risvj4r3p', raw: false })
-  console.log('emit ')
-}, 300)
-
-/*
-var data = {src:'/opt/share/tmp/.temp/1qar1wfit4786on'}
-var filename = path.relative(path.dirname(data.src), data.src) + '.mp4'
-var outputPath =  path.join(config.output.folder,filename)
-var outputTempPath =  path.join(config.output.temp, filename)
-png2prores(data.src, outputTempPath, function () {
-    exec('mv ' + outputTempPath + ' ' + outputPath)
-    console.log('finished video')
-})
-*/

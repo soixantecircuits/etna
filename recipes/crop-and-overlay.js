@@ -1,5 +1,39 @@
-'use strict';
+'use strict'
+var ffmpeg = require('fluent-ffmpeg')
+
 module.exports = {
+  watermark: function (data, callback) {
+    var input = data.input
+    var output = data.outputTempPath
+    var watermark = 'assets/watermark.png'
+    if (data.params) {
+      watermark = data.params.watermark || watermark
+    }
+    ffmpeg(input)
+      .input(watermark)
+      .audioCodec('libmp3lame')
+      .videoCodec('libx264')
+      .fps(25)
+      .complexFilter([
+        {
+          filter: 'overlay',
+          options: 'format=rgb',
+          inputs: ['0:0', '1:0'],
+          outputs: 'output'
+        }], 'output')
+      .on('end', function () {
+        console.log('files have been watermarked succesfully')
+        if (callback) return callback(null)
+      })
+      .on('error', function (err, stdout, stderr) {
+        console.log('an error happened: ' + err.message, stdout, stderr)
+      })
+      .on('start', function (commandLine) {
+        console.log('Spawned Ffmpeg with command: ' + commandLine)
+      })
+      .output(output)
+      .run()
+  },
   crop: function (data, callback) {
     var input = data.input
     var output = data.outputTempPath
@@ -9,7 +43,7 @@ module.exports = {
       .audioCodec('libmp3lame')
       .videoCodec('libx264')
       .fps(25)
-      .videoFilters('crop=' + params)
+      .videoFilters('crop=' + data.params)
       .on('end', function () {
         console.log('files have been cropped succesfully')
         if (callback) return callback(null)
@@ -28,12 +62,12 @@ module.exports = {
     var output = data.outputTempPath
     // ffmpeg -i steve.mp4 -filter:v "crop=1024:576:0:0" steve_1024.mp4
     ffmpeg.ffprobe(input[0], function (err, videodata) {
-      if(err) {
+      if (err) {
         console.err(err)
       } else {
         var duration = videodata.format.duration
         data.audioOffset = data.audioOffset || 0
-        var ss =  data.audioOffset - duration
+        var ss = data.audioOffset - duration
         data.cropParams = data.cropParams || '1024:576:0:0'
         ffmpeg(input[0])
           .input(input[1])
@@ -42,10 +76,10 @@ module.exports = {
           .outputOptions('-map 1:a')
           .outputOptions('-shortest')
           .outputOptions('-strict -2')
-          //.audioCodec('libmp3lame')
+          // .audioCodec('libmp3lame')
           .videoCodec('libx264')
           .fps(25)
-          .videoFilters('crop=' + cropParams)
+          .videoFilters('crop=' + data.cropParams)
           .on('end', function () {
             console.log('files have been cropped succesfully')
             if (callback) return callback(null)
@@ -77,13 +111,15 @@ module.exports = {
         {
           filter: 'fade', options: 'out:25:24:alpha=1',
           inputs: '1:0', outputs: 'wm'
-        },*/
+        }, */
 
         // Create stream 'red' by removing green and blue channels from stream 'a'
         {
-          filter: 'overlay', options: 'format=rgb',
+          filter: 'overlay',
+          options: 'format=rgb',
           // inputs: ['0:0', 'wm'], outputs: 'output'
-          inputs: ['0:0', '1:0'], outputs: 'output'
+          inputs: ['0:0', '1:0'],
+          outputs: 'output'
         }], 'output')
       .on('end', function () {
         console.log('files have been overlayed succesfully')
@@ -115,7 +151,7 @@ module.exports = {
       [7, 10],
       [12, 13]
     ]
-    var fade_duration = 0.2
+    var fadeDuration = 0.2
 
     var complexFilter = []
     timecodes.forEach(function (element, i) {
@@ -133,17 +169,23 @@ module.exports = {
       // st= time wher the fadein starts
       // d= duration of the fadein
       complexFilter.push({
-        filter: 'format=pix_fmts=yuva420p,fade', options: 'in:st=' + element[0] + ':d=' + fade_duration + ':alpha=1,fade=out:st=' + element[1] + ':d=' + fade_duration + ':alpha=1',
-        inputs: '1:0', outputs: input1
+        filter: 'format=pix_fmts=yuva420p,fade',
+        options: 'in:st=' + element[0] + ':d=' + fadeDuration + ':alpha=1,fade=out:st=' + element[1] + ':d=' + fadeDuration + ':alpha=1',
+        inputs: '1:0',
+        outputs: input1
       },
         {
-          filter: 'overlay', options: 'format=rgb',
-          inputs: [input0, input1], outputs: output0
+          filter: 'overlay',
+          options: 'format=rgb',
+          inputs: [input0, input1],
+          outputs: output0
         })
     })
     complexFilter.push({
-      filter: 'overlay', options: 'format=rgb,trim=duration=16.8', // edited from 15
-      inputs: ['mix' + ((timecodes.length - 1) * 2 + 1), '2:0'], outputs: 'output'
+      filter: 'overlay',
+      options: 'format=rgb,trim=duration=16.8', // edited from 15
+      inputs: ['mix' + ((timecodes.length - 1) * 2 + 1), '2:0'],
+      outputs: 'output'
     })
 
     ffmpeg(input[0])
@@ -169,4 +211,4 @@ module.exports = {
       .run()
   }
 
-};
+}

@@ -3,18 +3,18 @@
     "host": "spacebro.space",
     "port": 3333,
     "clientName": "etna",
-    "channelName": "zhaoxianjs",
+    "channelName": "etna",
     "inputMessage": "new-media-for-etna",
     "outputMessage": "new-media-from-etna"
   },
-  "recipe": "albumSaved",
+  "recipe": "watermark",
   "staticServer":{
     "host": "localhost",
     "port": 8866
   },
   "output":{
-    "temp": "/tmp/etna",
-    "folder": "/opt/share/videos"
+    "temp": "/tmp/etna/tmp",
+    "folder": "/tmp/etna"
   },
   "pingpong":{
     "gif": true,
