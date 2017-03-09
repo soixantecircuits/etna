@@ -20,5 +20,9 @@
     "gif": true,
     "inputFramerate": 13,
     "loops": 1
+  },
+  "nuke":{
+    "executable": "/path/to/nuke/executable",
+    "script": "/path/to/script.nk"
   }
 }
