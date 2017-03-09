@@ -20,8 +20,8 @@ var nukeScript = function (data, callback) {
 
 module.exports = {
   albumSavedNuke: function (data, callback) {
-    data.input = data.src
     var folder = path.relative(path.dirname(data.src), data.src)
+    data.input = path.join(data.src, folder + '-')
     data.output = path.join(config.output.folder, folder)
     data.outputTempPath = path.join(config.output.temp, folder)
     mkdirp(data.outputTempPath)
