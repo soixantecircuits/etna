@@ -127,7 +127,11 @@ var pingpongRaw = function (data, callback) {
 module.exports = {
   albumSaved: function (data, callback) {
     data.input = data.src
-    var filename = path.relative(path.dirname(data.src), data.src) + '.mp4'
+    var ext = '.mp4'
+    if (config.pingpong && config.pingpong.gif) {
+      ext = '.gif'
+    }
+    var filename = path.relative(path.dirname(data.src), data.src) + ext
     data.output = path.join(config.output.folder, filename)
     data.outputTempPath = path.join(config.output.temp, filename)
 
