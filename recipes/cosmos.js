@@ -6,6 +6,13 @@ var config = require('./../config.json')
 var pingpong = function (data, callback) {
   var input = data.input
   var output = data.outputTempPath
+  var watermark = 'assets/watermark.png'
+  if (config.params) {
+    watermark = config.params.watermark || watermark
+  }
+  if (data.params) {
+    watermark = data.params.watermark || watermark
+  }
   var bitrate = 6000
   var videoCodec = 'libx264'
   var outputOptions = [
@@ -20,7 +27,7 @@ var pingpong = function (data, callback) {
   var command = ffmpeg()
       .addInput(path.join(input, '%*.jpg'))
       // .addInput("assets/watermark.png")
-      .addInput('assets/ok-vrai-3D-incrust.mov')
+      .addInput(watermark)
 
   command
       // .complexFilter(['overlay=shortest=1'])
