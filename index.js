@@ -72,6 +72,7 @@ config.spacebro.outputMessage = config.spacebro.outputMessage || 'new-media-from
 // TODO: document 'new-media' data.recipe, data.input, data.output
 // add data.options, like the path for an image to watermark, framerate, ...
 spaceBro.on(config.spacebro.inputMessage, function (data) {
+  console.log('Received new media: ' + JSON.stringify(data))
   if (data.input) {
     data.output = data.output || path.join(config.output.folder, path.basename(data.input))
     data.outputTempPath = data.outputTempPath || path.join(config.output.temp, path.basename(data.output))
