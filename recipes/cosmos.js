@@ -136,6 +136,10 @@ module.exports = {
     var filename = name + ext
     data.output = path.join(config.output.folder, filename)
     data.outputTempPath = path.join(config.output.temp, filename)
+    // data.path = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + filename
+    data.path = data.output
+    data.file = filename
+    data.type = 'video/mp4'
 
     // thumbnail
     var thumbnailFilename = '0001.jpg'
@@ -143,7 +147,21 @@ module.exports = {
     var thumbnailPath = path.join(data.input, thumbnailFilename)
     var thumbnailDestPath = path.join(config.output.folder, thumbnailDestFilename)
     exec('cp ' + thumbnailPath + ' ' + thumbnailDestPath)
-    data.thumbnail = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + thumbnailDestFilename
+    // var thumbnailStaticPath = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + thumbnailDestFilename
+    var details = {
+      width: 0,
+      height: 0,
+      thumbnail: {
+        file: thumbnailDestFilename,
+        width: 0,
+        height: 0,
+        type: 'image/jpg',
+        // source: thumbnailStaticPath
+        source: thumbnailDestPath
+      }
+    }
+    data.details = details
+    console.log(data)
 
     if (data.raw) {
       pingpongRaw(data, callback)
