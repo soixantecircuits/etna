@@ -2,6 +2,7 @@
 var ffmpeg = require('fluent-ffmpeg')
 var path = require('path')
 var config = require('./../config.json')
+var exec = require('child_process').exec
 
 var pingpong = function (data, callback) {
   var input = data.input
@@ -131,9 +132,18 @@ module.exports = {
     if (config.pingpong && config.pingpong.gif) {
       ext = '.gif'
     }
-    var filename = path.relative(path.dirname(data.src), data.src) + ext
+    var name = path.relative(path.dirname(data.src), data.src)
+    var filename = name + ext
     data.output = path.join(config.output.folder, filename)
     data.outputTempPath = path.join(config.output.temp, filename)
+
+    // thumbnail
+    var thumbnailFilename = '0001.jpg'
+    var thumbnailDestFilename = name + '-' + '0001.jpg'
+    var thumbnailPath = path.join(data.input, thumbnailFilename)
+    var thumbnailDestPath = path.join(config.output.folder, thumbnailDestFilename)
+    exec('cp ' + thumbnailPath + ' ' + thumbnailDestPath)
+    data.thumbnail = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + thumbnailDestFilename
 
     if (data.raw) {
       pingpongRaw(data, callback)
