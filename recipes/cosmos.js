@@ -7,7 +7,7 @@ var exec = require('child_process').exec
 var pingpong = function (data, callback) {
   var input = data.input
   var output = data.outputTempPath
-  var watermark = 'assets/watermark.png'
+  var watermark = false
   if (config.params) {
     watermark = config.params.watermark || watermark
   }
@@ -28,7 +28,9 @@ var pingpong = function (data, callback) {
   var command = ffmpeg()
       .addInput(path.join(input, '%*.jpg'))
       // .addInput("assets/watermark.png")
-      .addInput(watermark)
+  if (watermark) {
+    command.addInput(watermark)
+  }
 
   command
       // .complexFilter(['overlay=shortest=1'])
@@ -52,13 +54,20 @@ var pingpong = function (data, callback) {
   if (config.pingpong.loops > 0) {
       // ffmpeg -i out.mp4 -filter_complex "[0]reverse[r];[0][r]concat,loop=5:250,setpts=N/25/TB" output.mp4
     console.log('use pingpong loops')
-    command.complexFilter([
-      '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/' + config.pingpong.inputFramerate + '/TB,scale=640:640[pingpong]',
-      '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0[c]',
-      '[c][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2+100'
-        // '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0,scale=640:640',
-        // '[pingpong]scale=iw/2:ih/2',
-    ])
+    if (watermark) {
+      command.complexFilter([
+        '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/' + config.pingpong.inputFramerate + '/TB,scale=640:640[pingpong]',
+        '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0[c]',
+        '[c][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2+100'
+          // '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0,scale=640:640',
+          // '[pingpong]scale=iw/2:ih/2',
+      ])
+    } else {
+      command.complexFilter([
+        '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/' + config.pingpong.inputFramerate + '/TB,scale=640:640[pingpong]',
+        '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0'
+      ])
+    }
   }
   if (config.pingpong.gif !== true) {
     command
