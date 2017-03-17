@@ -1,7 +1,6 @@
 var ffmpeg = require('fluent-ffmpeg')
 var fs = require('fs')
 var path = require('path')
-var exec = require('child_process').exec
 var config = require('./config.json')
 var mkdirp = require('mkdirp')
 var express = require('express')
@@ -80,9 +79,14 @@ spaceBro.on(config.spacebro.inputMessage, function (data) {
   data.recipe = data.recipe || config.recipe
   var recipeFn = recipes.recipe(data.recipe)
   recipeFn(data, function () {
-    exec('mv ' + data.outputTempPath + ' ' + data.output)
-    console.log('finished video ' + data.output)
-    data.src = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(data.output)
-    spaceBro.emit(config.spacebro.outputMessage, data)
+    fs.rename(data.outputTempPath, data.output, function (err) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log('finished video ' + data.output)
+        data.src = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(data.output)
+        spaceBro.emit(config.spacebro.outputMessage, data)
+      }
+    })
   })
 })
