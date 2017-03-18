@@ -4,6 +4,7 @@ var path = require('path')
 var config = require('./config.json')
 var mkdirp = require('mkdirp')
 var express = require('express')
+var exec = require('child_process').exec
 const spaceBro = require('spacebro-client')
 
 var recipes = require('./recipes')
@@ -79,7 +80,8 @@ spaceBro.on(config.spacebro.inputMessage, function (data) {
   data.recipe = data.recipe || config.recipe
   var recipeFn = recipes.recipe(data.recipe)
   recipeFn(data, function () {
-    fs.rename(data.outputTempPath, data.output, function (err) {
+    // fs.rename(data.outputTempPath, data.output, function (err) {
+    exec('mv ' + data.outputTempPath + ' ' + data.output, function (err) {
       if (err) {
         console.log(err)
       } else {
