@@ -1,19 +1,16 @@
 'use strict'
 var ffmpeg = require('fluent-ffmpeg')
 var path = require('path')
-var config = require('./../config.json')
+// var settings = require('./../config.json')
 var exec = require('child_process').exec
+var nconf = require('nconf')
+var standardSettings = require('standard-settings')
+var settings = nconf.get()
 
 var pingpong = function (data, callback) {
   var input = data.input
   var output = data.outputTempPath
-  var watermark = false
-  if (config.params) {
-    watermark = config.params.watermark || watermark
-  }
-  if (data.params) {
-    watermark = data.params.watermark || watermark
-  }
+  var watermark = standardSettings.getMeta(data).watermark
   var bitrate = 6000
   var videoCodec = 'libx264'
   var outputOptions = [
@@ -34,7 +31,7 @@ var pingpong = function (data, callback) {
 
   command
       // .complexFilter(['overlay=shortest=1'])
-      .inputFPS(config.pingpong.inputFramerate)
+      .inputFPS(settings.pingpong.inputFramerate)
       .fps(25)
       .on('start', function (commandLine) {
         console.log('Spawned Ffmpeg with command: ' + commandLine)
@@ -51,12 +48,12 @@ var pingpong = function (data, callback) {
         if (callback) return callback(null)
       })
 
-  if (config.pingpong.loops > 0) {
+  if (settings.pingpong.loops > 0) {
       // ffmpeg -i out.mp4 -filter_complex "[0]reverse[r];[0][r]concat,loop=5:250,setpts=N/25/TB" output.mp4
     console.log('use pingpong loops')
     if (watermark) {
       command.complexFilter([
-        '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/' + config.pingpong.inputFramerate + '/TB,scale=640:640[pingpong]',
+        '[0]reverse[r];[0][r]concat,loop=' + settings.pingpong.loops + ':250,setpts=N/' + settings.pingpong.inputFramerate + '/TB,scale=640:640[pingpong]',
         '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0[c]',
         '[c][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2+100'
           // '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0,scale=640:640',
@@ -64,12 +61,12 @@ var pingpong = function (data, callback) {
       ])
     } else {
       command.complexFilter([
-        '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/' + config.pingpong.inputFramerate + '/TB,scale=640:640[pingpong]',
+        '[0]reverse[r];[0][r]concat,loop=' + settings.pingpong.loops + ':250,setpts=N/' + settings.pingpong.inputFramerate + '/TB,scale=640:640[pingpong]',
         '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0'
       ])
     }
   }
-  if (config.pingpong.gif !== true) {
+  if (settings.pingpong.gif !== true) {
     command
         .videoCodec(videoCodec)
         .outputOptions(outputOptions)
@@ -98,7 +95,7 @@ var pingpongRaw = function (data, callback) {
 
   command
       // .complexFilter(['overlay=shortest=1'])
-      .inputFPS(config.pingpong.inputFramerate)
+      .inputFPS(settings.pingpong.inputFramerate)
       .fps(25)
       .on('start', function (commandLine) {
         console.log('Spawned Ffmpeg with command: ' + commandLine)
@@ -115,17 +112,17 @@ var pingpongRaw = function (data, callback) {
         if (callback) return callback(null)
       })
 
-  if (config.pingpong.loops > 0) {
+  if (settings.pingpong.loops > 0) {
       // ffmpeg -i out.mp4 -filter_complex "[0]reverse[r];[0][r]concat,loop=5:250,setpts=N/25/TB" output.mp4
     console.log('use pingpong loops')
     command.complexFilter([
-      '[0]reverse[r];[0][r]concat,loop=' + config.pingpong.loops + ':250,setpts=N/' + config.pingpong.inputFramerate + '/TB[pingpong]',
+      '[0]reverse[r];[0][r]concat,loop=' + settings.pingpong.loops + ':250,setpts=N/' + settings.pingpong.inputFramerate + '/TB[pingpong]',
         // '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0[c]',
         // '[c][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2,scale=640:640'
       '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0,scale=640:640'
     ])
   }
-  if (config.pingpong.gif !== true) {
+  if (settings.pingpong.gif !== true) {
     command
         .videoCodec(videoCodec)
         .outputOptions(outputOptions)
@@ -138,14 +135,14 @@ module.exports = {
   albumSaved: function (data, callback) {
     data.input = data.src
     var ext = '.mp4'
-    if (config.pingpong && config.pingpong.gif) {
+    if (settings.pingpong && settings.pingpong.gif) {
       ext = '.gif'
     }
     var name = path.relative(path.dirname(data.src), data.src)
     var filename = name + ext
-    data.output = path.join(config.output.folder, filename)
-    data.outputTempPath = path.join(config.output.temp, filename)
-    // data.path = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + filename
+    data.output = path.join(settings.folder.output, filename)
+    data.outputTempPath = path.join(settings.folder.tmp, filename)
+    // data.path = 'http://' + settings.server.host + ':' + settings.server.port + '/' + filename
     data.path = data.output
     data.file = filename
     data.type = 'video/mp4'
@@ -154,9 +151,9 @@ module.exports = {
     var thumbnailFilename = '0001.jpg'
     var thumbnailDestFilename = name + '-' + '0001.jpg'
     var thumbnailPath = path.join(data.input, thumbnailFilename)
-    var thumbnailDestPath = path.join(config.output.folder, thumbnailDestFilename)
+    var thumbnailDestPath = path.join(settings.folder.output, thumbnailDestFilename)
     exec('cp ' + thumbnailPath + ' ' + thumbnailDestPath)
-    // var thumbnailStaticPath = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + thumbnailDestFilename
+    // var thumbnailStaticPath = 'http://' + settings.server.host + ':' + settings.server.port + '/' + thumbnailDestFilename
     var details = {
       width: 0,
       height: 0,

@@ -1,14 +1,12 @@
 'use strict'
 var ffmpeg = require('fluent-ffmpeg')
+var standardSettings = require('standard-settings')
 
 module.exports = {
   watermark: function (data, callback) {
     var input = data.input
     var output = data.outputTempPath
-    var watermark = 'assets/watermark.png'
-    if (data.params) {
-      watermark = data.params.watermark || watermark
-    }
+    var watermark = standardSettings.getMeta(data).watermark
     ffmpeg(input)
       .input(watermark)
       .audioCodec('libmp3lame')
@@ -38,12 +36,13 @@ module.exports = {
     var input = data.input
     var output = data.outputTempPath
     // ffmpeg -i steve.mp4 -filter:v "crop=1024:576:0:0" steve_1024.mp4
-    data.params = data.params || '1024:576:0:0'
+    // var roi = '1024:576:0:0'
+    var roi = standardSettings.getMeta(data).roi
     ffmpeg(input)
       .audioCodec('libmp3lame')
       .videoCodec('libx264')
       .fps(25)
-      .videoFilters('crop=' + data.params)
+      .videoFilters('crop=' + roi)
       .on('end', function () {
         console.log('files have been cropped succesfully')
         if (callback) return callback(null)
@@ -98,7 +97,7 @@ module.exports = {
   overlay: function (data, callback) {
     var input = data.input
     var output = data.outputTempPath
-    var watermark = data.watermak || 'example/gabarit_1024.mov'
+    var watermark = standardSettings.getMeta(data).watermark
     ffmpeg(input)
       .input(watermark)
       .inputOptions('-vcodec qtrle')
@@ -137,7 +136,7 @@ module.exports = {
   overlay2: function (data, callback) {
     var input = data.input
     var output = data.outputTempPath
-    var watermark = data.watermark || 'example/gabarit_1024.mov'
+    var watermark = standardSettings.getMeta(data).watermark
     /*
     var timecodes = [
       [3, 3.5],

@@ -1,16 +1,19 @@
 var ffmpeg = require('fluent-ffmpeg')
 var fs = require('fs')
 var path = require('path')
-var config = require('./config.json')
+// var config = require('./config.json')
 var mkdirp = require('mkdirp')
 var express = require('express')
 var exec = require('child_process').exec
 const spaceBro = require('spacebro-client')
+// var standardSettings = require('standard-settings')
+var nconf = require('nconf')
 
 var recipes = require('./recipes')
 
-mkdirp(config.output.folder)
-mkdirp(config.output.temp)
+var settings = nconf.get()
+mkdirp(settings.folder.output)
+mkdirp(settings.folder.tmp)
 
 var filename
 if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
@@ -39,24 +42,24 @@ if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
 }
 
 // init static server to serve generated files
-config.staticServer = config.staticServer || {}
-config.staticServer.host = config.staticServer.host || 'localhost'
-config.staticServer.port = config.staticServer.port || 8866
+settings.server = settings.server || {}
+settings.server.host = settings.server.host || 'localhost'
+settings.server.port = settings.server.port || 8866
 var app = express()
-app.use(express['static'](config.output.folder))
-app.listen(process.env.PORT || config.staticServer.port, config.staticServer.host)
-console.log('Serving on http://' + config.staticServer.host + ':' + config.staticServer.port)
+app.use(express['static'](settings.folder.output))
+app.listen(process.env.PORT || settings.server.port, settings.server.host)
+console.log('Serving on http://' + settings.server.host + ':' + settings.server.port)
 
 // connect to spacebro to receive media to process
-config.spacebro = config.spacebro || {}
-config.spacebro.host = config.spacebro.host || 'spacebro.space'
-config.spacebro.port = config.spacebro.port || 3333
-config.spacebro.clientName = config.spacebro.clientName || 'etna'
-config.spacebro.channelName = config.spacebro.channelName || 'etna'
+settings.service.spacebro = settings.service.spacebro || {}
+settings.service.spacebro.host = settings.service.spacebro.host || 'spacebro.space'
+settings.service.spacebro.port = settings.service.spacebro.port || 3333
+settings.service.spacebro.clientName = settings.service.spacebro.clientName || 'etna'
+settings.service.spacebro.channelName = settings.service.spacebro.channelName || 'etna'
 
-spaceBro.connect(config.spacebro.host, config.spacebro.port, {
-  clientName: config.spacebro.clientName,
-  channelName: config.spacebro.channelName,
+spaceBro.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
+  clientName: settings.service.spacebro.clientName,
+  channelName: settings.service.spacebro.channelName,
   /* packers: [{ handler: function handler (args) {
       return console.log(args.eventName, '=>', args.data)
   } }],
@@ -67,17 +70,17 @@ spaceBro.connect(config.spacebro.host, config.spacebro.port, {
   sendBack: false
 })
 
-config.spacebro.inputMessage = config.spacebro.inputMessage || 'new-media-for-etna'
-config.spacebro.outputMessage = config.spacebro.outputMessage || 'new-media-from-etna'
+settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
+settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
 // TODO: document 'new-media' data.recipe, data.input, data.output
 // add data.options, like the path for an image to watermark, framerate, ...
-spaceBro.on(config.spacebro.inputMessage, function (data) {
+spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
   console.log('Received new media: ' + JSON.stringify(data))
   if (data.input) {
-    data.output = data.output || path.join(config.output.folder, path.basename(data.input))
-    data.outputTempPath = data.outputTempPath || path.join(config.output.temp, path.basename(data.output))
+    data.output = data.output || path.join(settings.folder.output, path.basename(data.input))
+    data.outputTempPath = data.outputTempPath || path.join(settings.folder.tmp, path.basename(data.output))
   }
-  data.recipe = data.recipe || config.recipe
+  data.recipe = data.recipe || settings.recipe
   var recipeFn = recipes.recipe(data.recipe)
   recipeFn(data, function () {
     // fs.rename(data.outputTempPath, data.output, function (err) {
@@ -86,8 +89,8 @@ spaceBro.on(config.spacebro.inputMessage, function (data) {
         console.log(err)
       } else {
         console.log('finished video ' + data.output)
-        data.src = 'http://' + config.staticServer.host + ':' + config.staticServer.port + '/' + path.basename(data.output)
-        spaceBro.emit(config.spacebro.outputMessage, data)
+        data.src = 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.output)
+        spaceBro.emit(settings.service.spacebro.outputMessage, data)
       }
     })
   })
