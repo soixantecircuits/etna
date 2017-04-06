@@ -6,7 +6,7 @@ var mkdirp = require('mkdirp')
 var express = require('express')
 var exec = require('child_process').exec
 const spaceBro = require('spacebro-client')
-// var standardSettings = require('standard-settings')
+require('standard-settings')
 var nconf = require('nconf')
 
 var recipes = require('./recipes')

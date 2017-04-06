@@ -19,12 +19,16 @@ Install npm packages
 npm i
 ```
 
-Copy config.example.json to config.json
+If you need to change settings,
+Copy settings.default.json to settings.json
 
 ```
-cp config.example.json config.json
+cp settings/settings.default.json settings/settings.json
 ```
 
+And edit settings.json
+You can also change settings with argv parameters.
+Learn more about this on [standard-settings](https://github.com/soixantecircuits/standard-settings)
 
 ## Spacebro
 

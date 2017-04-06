@@ -1,31 +1,33 @@
 'use strict'
-var config = require('./../config.json')
 const spaceBro = require('spacebro-client')
+var nconf = require('nconf')
+require('standard-settings')
+var settings = nconf.get()
 
-config.spacebro = config.spacebro || {}
-config.spacebro.host = config.spacebro.host || 'spacebro.space'
-config.spacebro.port = config.spacebro.port || 3333
-config.spacebro.clientName = config.spacebro.clientName || 'etna'
-config.spacebro.channelName = config.spacebro.channelName || 'etna'
+settings.service.spacebro = settings.service.spacebro || {}
+settings.service.spacebro.host = settings.service.spacebro.host || 'spacebro.space'
+settings.service.spacebro.port = settings.service.spacebro.port || 3333
+settings.service.spacebro.clientName = settings.service.spacebro.clientName || 'etna'
+settings.service.spacebro.channelName = settings.service.spacebro.channelName || 'etna'
 
-spaceBro.connect(config.spacebro.host, config.spacebro.port, {
-  clientName: config.spacebro.clientName,
-  channelName: config.spacebro.channelName,
+spaceBro.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
+  clientName: settings.service.spacebro.clientName,
+  channelName: settings.service.spacebro.channelName,
   verbose: false,
   sendBack: false
 })
 
-config.spacebro.inputMessage = config.spacebro.inputMessage || 'new-media-for-etna'
-config.spacebro.outputMessage = config.spacebro.outputMessage || 'new-media-from-etna'
-spaceBro.on(config.spacebro.outputMessage, function (data) {
+settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
+settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
+spaceBro.on(settings.service.spacebro.outputMessage, function (data) {
   console.log('video is ready: ' + data.output)
 })
 
 setTimeout(function () {
-  spaceBro.emit(config.spacebro.inputMessage, {
+  spaceBro.emit(settings.service.spacebro.inputMessage, {
     recipe: 'watermark',
     input: 'example/calculatedmovements.mp4',
-    params: {watermark: 'example/pacman.mov'}
+    meta: {watermark: 'example/pacman.mov'}
   })
   console.log('emit ')
 }, 300)
