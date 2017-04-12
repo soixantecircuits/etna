@@ -69,6 +69,7 @@ spaceBro.connect(settings.service.spacebro.host, settings.service.spacebro.port,
   verbose: false,
   sendBack: false
 })
+console.log('Connecting to spacebro on ' + settings.service.spacebro.host + ':' + settings.service.spacebro.port)
 
 settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
 settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
