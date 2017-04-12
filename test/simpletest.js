@@ -28,7 +28,16 @@ setTimeout(function () {
   spaceBro.emit(settings.service.spacebro.inputMessage, {
     recipe: 'watermark',
     input: 'example/calculatedmovements.mp4',
-    meta: {watermark: 'example/pacman.mov'}
+    // meta: {watermark: 'example/pacman.mov'}
+    // meta: {watermark: 'assets/watermark.png'}
+    meta: {
+      watermark: {
+        path: 'assets/watermark.png',
+        start: 5,
+        end: 10,
+        fadeDuration: 0.5
+      }
+    }
   })
   console.log('emit ')
 }, 300)

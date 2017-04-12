@@ -6,19 +6,47 @@ module.exports = {
   watermark: function (data, callback) {
     var input = data.input
     var output = data.outputTempPath
+    var complexFilter = []
+    var inputOption
     var watermark = standardSettings.getMeta(data).watermark
-    ffmpeg(input)
-      .input(watermark)
+    if (typeof watermark === 'object') {
+      var start = watermark.start || 0
+      var end = watermark.end || start + 2
+      var fadeDuration = watermark.fadeDuration || 1
+      watermark = watermark.path
+      inputOption = '-loop 1'
+
+      complexFilter.push({
+        filter: 'fade',
+        options: 'in:st=' + start + ':d=' + fadeDuration + ',fade=out:st=' + end + ':d=' + fadeDuration,
+        inputs: '1:0',
+        outputs: 'watermark'
+      },
+        {
+          filter: 'overlay',
+          options: ['format=rgb', 'shortest=1'],
+          inputs: ['0:0', 'watermark'],
+          outputs: 'output'
+        })
+    } else {
+      complexFilter.push({
+        filter: 'overlay',
+        options: ['format=rgb'],
+        inputs: ['0:0', '1:0'],
+        outputs: 'output'
+      })
+    }
+    var proc = ffmpeg(input)
+    if (inputOption) {
+      proc.input(watermark).inputOptions(inputOption)
+    } else {
+      proc.input(watermark)
+    }
+    proc
       .audioCodec('libmp3lame')
       .videoCodec('libx264')
       .fps(25)
-      .complexFilter([
-        {
-          filter: 'overlay',
-          options: 'format=rgb',
-          inputs: ['0:0', '1:0'],
-          outputs: 'output'
-        }], 'output')
+      .complexFilter(complexFilter, 'output')
       .on('end', function () {
         console.log('files have been watermarked succesfully')
         if (callback) return callback(null)
