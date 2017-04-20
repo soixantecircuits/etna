@@ -1,0 +1,33 @@
+{
+  "server":{
+    "host": "localhost",
+    "port": 8866
+  },
+  "service": {
+    "spacebro":{
+      "host": "spacebro.space",
+      "port": 3333,
+      "clientName": "etna",
+      "channelName": "etna",
+      "inputMessage": "new-media-for-etna",
+      "outputMessage": "new-media-from-etna"
+    }
+  },
+  "recipe": "watermark",
+  "folder":{
+    "tmp": "/tmp/etna/tmp",
+    "output": "/tmp/etna"
+  },
+  "meta":{
+    "watermark":"assets/watermark.png"
+  },
+  "pingpong":{
+    "gif": true,
+    "inputFramerate": 13,
+    "loops": 1
+  },
+  "nuke":{
+    "executable": "/path/to/nuke/executable",
+    "script": "/path/to/script.nk"
+  }
+}
