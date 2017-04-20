@@ -24,7 +24,7 @@ module.exports = {
       },
         {
           filter: 'overlay',
-          options: ['format=rgb', 'shortest=1'],
+          options: ['format=rgb', 'shortest=1', 'setpts=0.5*PTS'],
           inputs: ['0:0', 'watermark'],
           outputs: 'output'
         })

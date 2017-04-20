@@ -77,6 +77,9 @@ settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessag
 // add data.options, like the path for an image to watermark, framerate, ...
 spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
   console.log('Received new media: ' + JSON.stringify(data))
+  if (data.path && data.input === undefined) {
+    data.input = data.path
+  }
   if (data.input) {
     data.output = data.output || path.join(settings.folder.output, path.basename(data.input))
     data.outputTempPath = data.outputTempPath || path.join(settings.folder.tmp, path.basename(data.output))
