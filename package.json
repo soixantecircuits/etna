@@ -10,6 +10,7 @@
     "express": "^4.14.0",
     "fluent-ffmpeg": "^2.0.1",
     "mkdirp": "^0.5.1",
+    "moment": "^2.18.1",
     "recursive-readdir": "^2.1.1",
     "spacebro-client": "0.1.0",
     "standard-settings": "^1.1.0"

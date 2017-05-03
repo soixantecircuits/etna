@@ -5,6 +5,7 @@ var path = require('path')
 var mkdirp = require('mkdirp')
 var express = require('express')
 var exec = require('child_process').exec
+var moment = require('moment')
 const spaceBro = require('spacebro-client')
 require('standard-settings')
 var nconf = require('nconf')
@@ -83,7 +84,13 @@ spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
   if (data.input) {
     data.output = data.output || path.join(settings.folder.output, path.basename(data.input))
     data.outputTempPath = data.outputTempPath || path.join(settings.folder.tmp, path.basename(data.output))
+  } else {
+    var date = moment()
+    var timestampName = date.format('YYYY-MM-DDTHH-mm-ss-SSS') + '.mp4'
+    data.output = data.output || path.join(settings.folder.output, path.basename(timestampName))
+    data.outputTempPath = data.outputTempPath || path.join(settings.folder.tmp, path.basename(data.output))
   }
+
   data.recipe = data.recipe || settings.recipe
   var recipeFn = recipes.recipe(data.recipe)
   recipeFn(data, function () {
@@ -92,11 +99,11 @@ spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
       if (err) {
         console.log(err)
       } else {
-        console.log('finished video ' + data.output)
+        console.log('finished processing ' + data.output)
         if (!data.details) {
           data.details = {}
         }
-        data.details.etnaInput = data
+        data.details.etnaInput = JSON.parse(JSON.stringify(data))
         data.path = data.output
         data.url = 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.output)
         spaceBro.emit(settings.service.spacebro.outputMessage, data)

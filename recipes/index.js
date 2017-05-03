@@ -2,9 +2,15 @@
 var path = require('path')
 var recursiveReaddir = require('recursive-readdir')
 
+function ignoreTestFolders (file, stats) {
+  // `file` is the absolute path to the file, and `stats` is an `fs.Stats`
+  // object returned from `fs.lstat()`.
+  return stats.isDirectory() && path.basename(file) === 'test'
+}
+
 // require all files in folder
 // require('fs').readdirSync(path.join(__dirname, '/')).forEach(function (file) {
-recursiveReaddir(path.join(__dirname, '/'), function (err, files) {
+recursiveReaddir(path.join(__dirname, '/'), [ignoreTestFolders], function (err, files) {
   if (err) {
     console.log(err)
   }
