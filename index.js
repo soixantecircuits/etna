@@ -93,7 +93,12 @@ spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
         console.log(err)
       } else {
         console.log('finished video ' + data.output)
-        data.src = 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.output)
+        if (!data.details) {
+          data.details = {}
+        }
+        data.details.etnaInput = data
+        data.path = data.output
+        data.url = 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.output)
         spaceBro.emit(settings.service.spacebro.outputMessage, data)
       }
     })
