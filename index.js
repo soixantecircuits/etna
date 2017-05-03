@@ -42,6 +42,8 @@ if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
   // process.exit(1)
 }
 
+var lastCommand
+
 // init static server to serve generated files
 settings.server = settings.server || {}
 settings.server.host = settings.server.host || 'localhost'
@@ -93,7 +95,7 @@ spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
 
   data.recipe = data.recipe || settings.recipe
   var recipeFn = recipes.recipe(data.recipe)
-  recipeFn(data, function () {
+  lastCommand = recipeFn(data, function () {
     // fs.rename(data.outputTempPath, data.output, function (err) {
     exec('mv ' + data.outputTempPath + ' ' + data.output, function (err) {
       if (err) {
@@ -110,4 +112,10 @@ spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
       }
     })
   })
+})
+spaceBro.on('etna-stop', function (data) {
+  console.log('kill')
+  if (lastCommand) {
+    lastCommand.kill('SIGINT')
+  }
 })
