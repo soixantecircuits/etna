@@ -44,6 +44,7 @@ module.exports = {
       if (err) {
         console.log(err)
       }
+      data.outputTempPath = output
       var command = ffmpeg(input)
         .outputOptions(['-pix_fmt yuv420p'])
         .videoCodec('libx264')
