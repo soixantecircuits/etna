@@ -4,11 +4,16 @@ var standardSettings = require('standard-settings')
 
 module.exports = {
   watermark: function (data, callback) {
+    var watermark = standardSettings.getMeta(data).watermark
+    if (watermark === undefined) {
+      data.outputTempPath = data.input
+      if (callback) return callback(null)
+      return
+    }
     var input = data.input
     var output = data.outputTempPath
     var complexFilter = []
     var inputOption
-    var watermark = standardSettings.getMeta(data).watermark
     if (typeof watermark === 'object') {
       var start = watermark.start || 0
       var end = watermark.end || start + 2
@@ -25,14 +30,14 @@ module.exports = {
         {
           filter: 'overlay',
           options: ['format=rgb', 'shortest=1'],
-          inputs: ['0:0', 'watermark'],
+          inputs: ['0:v', 'watermark'],
           outputs: 'output'
         })
     } else {
       complexFilter.push({
         filter: 'overlay',
         options: ['format=rgb'],
-        inputs: ['0:0', '1:0'],
+        inputs: ['0:v', '1:0'],
         outputs: 'output'
       })
     }
@@ -43,10 +48,11 @@ module.exports = {
       proc.input(watermark)
     }
     proc
-      .audioCodec('libmp3lame')
       .videoCodec('libx264')
       .fps(25)
       .complexFilter(complexFilter, 'output')
+      .outputOptions(['-pix_fmt yuv420p'])
+      .outputOptions(['-map 0:a'])
       .on('end', function () {
         console.log('files have been watermarked succesfully')
         if (callback) return callback(null)
