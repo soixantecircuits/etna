@@ -27,10 +27,11 @@ spaceBro.on(settings.service.spacebro.outputMessage, function (data) {
 setTimeout(function () {
   spaceBro.emit(settings.service.spacebro.inputMessage, {
     recipe: 'record',
-    path: 'record.mp4', // optional, if not defined it will be a timestamp
+    // path: 'record.mp4', // optional, if not defined it will be a timestamp
     meta: {
       mjpgStream: 'http://localhost:8880/?action=stream',
-      duration: 10,
+      duration: 1,
+      mirror: true,
       audioDevice: 'default'
     }
   })

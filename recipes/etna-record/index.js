@@ -60,6 +60,9 @@ module.exports = {
         data.output = replaceExt(data.output, '.gif')
         data.outputTempPath = replaceExt(data.outputTempPath, '.gif')
       }
+      if (meta.mirror) {
+        command.complexFilter('hflip')
+      }
       command
         .on('end', function () {
           console.log('file have been post-processed succesfully')
