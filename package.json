@@ -12,6 +12,7 @@
     "mkdirp": "^0.5.1",
     "moment": "^2.18.1",
     "recursive-readdir": "^2.1.1",
+    "replace-ext": "^1.0.0",
     "spacebro-client": "0.1.0",
     "standard-settings": "^1.1.0"
   },

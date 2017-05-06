@@ -31,7 +31,7 @@ setTimeout(function () {
     meta: {
       mjpgStream: 'http://localhost:8880/?action=stream',
       duration: 10,
-      audioDevice: 'hw:1'
+      audioDevice: 'default'
     }
   })
   console.log('emit ')
