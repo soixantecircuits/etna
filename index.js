@@ -111,6 +111,7 @@ spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
         delete data.input
         delete data.output
         delete data.outputTempPath
+        console.log(data)
         spaceBro.emit(settings.service.spacebro.outputMessage, data)
       }
     })
