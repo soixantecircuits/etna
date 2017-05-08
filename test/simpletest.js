@@ -29,7 +29,6 @@ setTimeout(function () {
     recipe: 'watermark',
     input: 'example/calculatedmovements.mp4',
     // meta: {watermark: 'example/pacman.mov'}
-   
     // meta: {watermark: 'assets/watermark.png'}
     meta: {
       watermark: {
@@ -37,10 +36,13 @@ setTimeout(function () {
         path: 'assets/watermark.png',
         start: 5,
         end: 10,
-        fadeDuration: 0.5
+        fadeDuration: 0.5,
+        x: 30,
+        y: 100,
+        width: 20,
+        height: 20
       }
     }
-   
   })
   console.log('emit ')
 }, 300)

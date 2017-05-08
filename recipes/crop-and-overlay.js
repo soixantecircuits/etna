@@ -14,22 +14,38 @@ module.exports = {
     var output = data.outputTempPath
     var complexFilter = []
     var inputOption
+    var x = 0
+    var y = 0
     if (typeof watermark === 'object') {
       var start = watermark.start || 0
       var end = watermark.end || start + 2
       var fadeDuration = watermark.fadeDuration || 1
-      watermark = watermark.path
+      x = watermark.x || 0
+      y = watermark.y || 0
       inputOption = '-loop 1'
+      var inputVideo = '1:0'
+      if (watermark.width) {
+        var width = watermark.width || 100
+        var height = watermark.height || 100
+        complexFilter.push({
+          filter: 'scale',
+          options: width + 'x' + height,
+          inputs: inputVideo,
+          outputs: 'scaled'
+        })
+        inputVideo = 'scaled'
+      }
+      watermark = watermark.path
 
       complexFilter.push({
         filter: 'fade',
         options: 'in:st=' + start + ':d=' + fadeDuration + ',fade=out:st=' + end + ':d=' + fadeDuration,
-        inputs: '1:0',
+        inputs: inputVideo,
         outputs: 'watermark'
       },
         {
           filter: 'overlay',
-          options: ['format=rgb', 'shortest=1'],
+          options: [x + ':' + y, 'format=rgb', 'shortest=1'],
           inputs: ['0:v', 'watermark'],
           outputs: 'output'
         })
