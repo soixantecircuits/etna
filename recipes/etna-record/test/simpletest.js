@@ -30,7 +30,7 @@ setTimeout(function () {
     // path: 'record.mp4', // optional, if not defined it will be a timestamp
     meta: {
       mjpgStream: 'http://localhost:8880/?action=stream',
-      duration: 1,
+      duration: 10,
       mirror: true,
       audioDevice: 'default'
     }
@@ -42,4 +42,4 @@ setTimeout(function () {
   spaceBro.emit('etna-stop', {
     option: 'option'
   })
-}, 8000)
+}, 18000)

@@ -38,9 +38,42 @@ var recordMpeg4 = function (data, callback) {
   return command
 }
 
+var record = function (data, callback) {
+  var output = data.outputTempPath
+  var meta = standardSettings.getMeta(data)
+  var audioDevice = meta.audioDevice || 'hw:1'
+  var mjpgStream = meta.mjpgStream
+  var duration = meta.duration || 5
+  var outputFps = meta.outputFps || 30
+  var command = ffmpeg(audioDevice)
+      .inputOptions('-thread_queue_size 512')
+      .inputOptions(['-f alsa', '-ac 2'])
+      .input(mjpgStream)
+      .inputOptions(['-f mjpeg', '-r 30'])
+      // .audioCodec('libmp3lame')
+      .videoCodec('libx264')
+      .outputOptions(['-pix_fmt yuv420p', '-b:v 3500k', '-t ' + duration])
+      .fps(outputFps)
+      .on('end', function () {
+        console.log('file have been recorded succesfully')
+        if (callback) return callback(null)
+      })
+      .on('error', function (err, stdout, stderr) {
+        console.log('an error happened: ' + err.message, stdout, stderr)
+        if (callback) return callback(null)
+      })
+      .on('start', function (commandLine) {
+        console.log('Spawned Ffmpeg with command: ' + commandLine)
+      })
+      .output(output)
+  command.run()
+  return command
+}
+
 module.exports = {
+  record: record,
   recordMpeg4: recordMpeg4,
-  record: function (data, callback) {
+  record10000k: function (data, callback) {
     var output = data.outputTempPath
     data.outputTempPath = path.join(settings.folder.tmp, 'mpeg4-' + path.basename(data.output))
     var input = data.outputTempPath
