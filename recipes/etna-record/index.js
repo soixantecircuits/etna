@@ -45,6 +45,7 @@ var record = function (data, callback) {
   var mjpgStream = meta.mjpgStream
   var duration = meta.duration || 5
   var outputFps = meta.outputFps || 30
+  var bitrate = meta.bitrate || '3500k'
   var command = ffmpeg(audioDevice)
       .inputOptions('-thread_queue_size 512')
       .inputOptions(['-f alsa', '-ac 2'])
@@ -52,7 +53,7 @@ var record = function (data, callback) {
       .inputOptions(['-f mjpeg', '-r 30'])
       // .audioCodec('libmp3lame')
       .videoCodec('libx264')
-      .outputOptions(['-pix_fmt yuv420p', '-b:v 3500k', '-t ' + duration])
+      .outputOptions(['-pix_fmt yuv420p', '-b:v ' + bitrate, '-t ' + duration])
       .fps(outputFps)
       .on('end', function () {
         console.log('file have been recorded succesfully')
