@@ -22,11 +22,15 @@ module.exports = {
       var fadeDuration = watermark.fadeDuration || 1
       x = watermark.x || 0
       y = watermark.y || 0
+      x = Math.round(x)
+      y = Math.round(y)
       inputOption = '-loop 1'
       var inputVideo = '1:0'
       if (watermark.width) {
         var width = watermark.width || 100
         var height = watermark.height || 100
+        width = Math.round(width)
+        height = Math.round(height)
         complexFilter.push({
           filter: 'scale',
           options: width + 'x' + height,
