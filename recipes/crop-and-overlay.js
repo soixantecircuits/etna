@@ -19,18 +19,21 @@ module.exports = {
     if (typeof watermark === 'object') {
       var start = watermark.start || 0
       var end = watermark.end || start + 2
-      var fadeDuration = watermark.fadeDuration || 1
+      var fadeDuration = watermark.fadeDuration || 0.2
+      start = Math.max(start, 0)
+      end = Math.max(end, 0)
+
       x = watermark.x || 0
       y = watermark.y || 0
-      x = Math.round(x)
-      y = Math.round(y)
+      x = Math.max(Math.round(x), 0)
+      y = Math.max(Math.round(y), 0)
       inputOption = '-loop 1'
       var inputVideo = '1:0'
       if (watermark.width) {
         var width = watermark.width || 100
         var height = watermark.height || 100
-        width = Math.round(width)
-        height = Math.round(height)
+        width = Math.max(Math.round(width), 0)
+        height = Math.max(Math.round(height), 0)
         complexFilter.push({
           filter: 'scale',
           options: width + 'x' + height,
