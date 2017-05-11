@@ -93,8 +93,8 @@ spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
     data.outputTempPath = data.outputTempPath || path.join(settings.folder.tmp, path.basename(data.output))
   }
 
-  data.recipe = data.recipe || settings.recipe
-  var recipeFn = recipes.recipe(data.recipe)
+  var recipe = data.recipe || settings.recipe
+  var recipeFn = recipes.recipe(recipe)
   lastCommand = recipeFn(data, function () {
     // fs.rename(data.outputTempPath, data.output, function (err) {
     exec('mv ' + data.outputTempPath + ' ' + data.output, function (err) {
