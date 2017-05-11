@@ -5,6 +5,7 @@ var nconf = require('nconf')
 var settings = nconf.get()
 var path = require('path')
 var replaceExt = require('replace-ext')
+var thumbnail = require('./../thumbnail').thumbnail
 
 var recordMpeg4 = function (data, callback) {
   var output = data.outputTempPath
@@ -71,8 +72,30 @@ var record = function (data, callback) {
   return command
 }
 
+var recordWithThumbnail = function (data, callback) {
+  return record(data, () => {
+    data.input = data.outputTempPath
+    var outputTempPath = data.outputTempPath
+    var name = path.basename(outputTempPath, path.extname(path.basename(outputTempPath)))
+    var filename = name + '.png'
+    data.outputTempPath = path.join(settings.folder.output, filename)
+    thumbnail(data, () => {
+      if (data.details === undefined) {
+        data.details = {}
+      }
+      data.details.thumbnail = {
+        path: data.outputTempPath,
+        url: 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.outputTempPath)
+      }
+      data.outputTempPath = outputTempPath
+      if (callback) return callback(null)
+    })
+  })
+}
+
 module.exports = {
   record: record,
+  recordWithThumbnail: recordWithThumbnail,
   recordMpeg4: recordMpeg4,
   record10000k: function (data, callback) {
     var output = data.outputTempPath
