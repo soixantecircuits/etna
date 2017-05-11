@@ -50,7 +50,7 @@ settings.server.host = settings.server.host || 'localhost'
 settings.server.port = settings.server.port || 8866
 var app = express()
 app.use(express['static'](settings.folder.output))
-app.listen(process.env.PORT || settings.server.port, settings.server.host)
+app.listen(process.env.PORT || settings.server.port)
 console.log('Serving on http://' + settings.server.host + ':' + settings.server.port)
 
 // connect to spacebro to receive media to process
