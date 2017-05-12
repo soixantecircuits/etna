@@ -42,14 +42,19 @@ var recordMpeg4 = function (data, callback) {
 var record = function (data, callback) {
   var output = data.outputTempPath
   var meta = standardSettings.getMeta(data)
-  var audioDevice = meta.audioDevice || 'hw:1'
+  var audioDevice = meta.audioDevice
   var mjpgStream = meta.mjpgStream
   var duration = meta.duration || 5
   var outputFps = meta.outputFps || 30
   var bitrate = meta.bitrate || '3500k'
-  var command = ffmpeg(audioDevice)
+  var command = ffmpeg()
+  if (audioDevice) {
+    command
+      .input(audioDevice)
       .inputOptions('-thread_queue_size 512')
       .inputOptions(['-f alsa', '-ac 2'])
+  }
+  command
       .input(mjpgStream)
       .inputOptions(['-f mjpeg', '-r 30'])
       // .audioCodec('libmp3lame')
