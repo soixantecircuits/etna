@@ -16,12 +16,14 @@ module.exports = {
     var inputOption
     var x = 0
     var y = 0
+    var withAudio = true
     if (typeof watermark === 'object') {
       var start = watermark.start || 0
       var end = watermark.end || start + 2
       var fadeDuration = watermark.fadeDuration || 0.2
       start = Math.max(start, 0)
       end = Math.max(end, 0)
+      withAudio = watermark.keepAudio
 
       x = watermark.x || 0
       y = watermark.y || 0
@@ -75,7 +77,11 @@ module.exports = {
       .fps(25)
       .complexFilter(complexFilter, 'output')
       .outputOptions(['-pix_fmt yuv420p'])
-      .outputOptions(['-map 0:a'])
+    if (withAudio) {
+      proc
+        .outputOptions(['-map 0:a'])
+    }
+    proc
       .on('end', function () {
         console.log('files have been watermarked succesfully')
         if (callback) return callback(null)

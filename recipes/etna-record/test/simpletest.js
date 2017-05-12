@@ -29,10 +29,12 @@ setTimeout(function () {
     recipe: 'record',
     // path: 'record.mp4', // optional, if not defined it will be a timestamp
     meta: {
-      mjpgStream: 'http://localhost:8880/?action=stream',
+      // mjpgStream: 'http://localhost:8880/?action=stream',
+      mjpgStream: 'http://ysl-cam-center:8080/?action=stream',
       duration: 10,
       mirror: true,
-      audioDevice: 'default'
+      // audioDevice: 'default'
+      audioDevice: false
     }
   })
   console.log('emit ')
