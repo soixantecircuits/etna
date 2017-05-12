@@ -17,7 +17,7 @@
     "recursive-readdir": "^2.1.1",
     "replace-ext": "^1.0.0",
     "spacebro-client": "0.1.0",
-    "standard-settings": "^1.1.0"
+    "standard-settings": "soixantecircuits/standard-settings"
   },
   "devDependencies": {},
   "scripts": {
