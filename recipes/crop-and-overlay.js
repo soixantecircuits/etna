@@ -5,7 +5,7 @@ var standardSettings = require('standard-settings')
 module.exports = {
   watermark: function (data, callback) {
     var watermark = standardSettings.getMeta(data).watermark
-    if (watermark === undefined) {
+    if (watermark === undefined || watermark.path === undefined) {
       data.outputTempPath = data.input
       if (callback) return callback(null)
       return
