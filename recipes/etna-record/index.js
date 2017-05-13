@@ -48,11 +48,16 @@ var record = function (data, callback) {
   var outputFps = meta.outputFps || 30
   var bitrate = meta.bitrate || '3500k'
   var command = ffmpeg()
+  var audioOption = meta.audioOption
   if (audioDevice) {
     command
       .input(audioDevice)
       .inputOptions('-thread_queue_size 512')
       .inputOptions(['-f alsa', '-ac 2'])
+  }
+  if (audioOption) {
+    command
+      .inputOptions(audioOption)
   }
   command
       .input(mjpgStream)
