@@ -74,7 +74,6 @@ module.exports = {
     }
     proc
       .videoCodec('libx264')
-      .fps(25)
       .complexFilter(complexFilter, 'output')
       .outputOptions(['-pix_fmt yuv420p'])
     if (withAudio) {
