@@ -9,7 +9,7 @@ var settings = nconf.get()
 var nukeScript = function (data, callback) {
   var input = data.input
   var output = data.outputTempPath
-  exec(settings.nuke.executable + ' -x ' + settings.nuke.script + ' ' + input + ' ' + output, function (error, stdout, stderr) {
+  exec(settings.nuke.executable + ' -x ' + settings.nuke.script + ' ' + path.dirname(settings.nuke.script) + ' ' + input + ' ' + output, function (error, stdout, stderr) {
     console.log('stdout: ' + stdout)
     console.error('stderr: ' + stderr)
     if (error !== null) {
