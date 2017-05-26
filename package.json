@@ -34,7 +34,7 @@
     "editing"
   ],
   "author": "Emmanuel Geoffray",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/soixantecircuits/etna/issues"
   },
