@@ -1,6 +1,6 @@
 {
   "name": "etna",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A tool for video editing with a json file",
   "main": "index.js",
   "directories": {
@@ -16,8 +16,8 @@
     "moment": "^2.18.1",
     "recursive-readdir": "^2.1.1",
     "replace-ext": "^1.0.0",
-    "spacebro-client": "0.1.0",
-    "standard-settings": "soixantecircuits/standard-settings"
+    "spacebro-client": "0.3.4",
+    "standard-settings": "1.1.7"
   },
   "devDependencies": {},
   "scripts": {
