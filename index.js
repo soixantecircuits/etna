@@ -7,7 +7,7 @@ var express = require('express')
 var exec = require('child_process').exec
 var moment = require('moment')
 const spacebroClient = require('spacebro-client')
-require('standard-settings')
+var standardSettings = require('standard-settings')
 var nconf = require('nconf')
 
 var recipes = require('./recipes')
@@ -88,6 +88,16 @@ spacebroClient.on('disconnect', () => {
 
 settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
 settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
+
+
+var sendMedia = function (data) {
+  delete data.input
+  delete data.output
+  delete data.outputTempPath
+  spacebroClient.emit(settings.service.spacebro.outputMessage, data)
+  console.log(data)
+}
+
 // TODO: document 'new-media' data.recipe, data.input, data.output
 // add data.options, like the path for an image to watermark, framerate, ...
 spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
@@ -121,11 +131,15 @@ spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
         data.path = data.output
         data.file = path.basename(data.output)
         data.url = 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.output)
-        delete data.input
-        delete data.output
-        delete data.outputTempPath
-        console.log(data)
-        spacebroClient.emit(settings.service.spacebro.outputMessage, data)
+        var meta = standardSettings.getMeta(data)
+        if (meta.thumbnail) {
+          data.input = data.output
+          recipes.recipe('addThumbnail')(data, () => {
+            sendMedia(data)
+          })
+        } else {
+            sendMedia(data)
+        }
       }
     })
   })

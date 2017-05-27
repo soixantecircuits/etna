@@ -57,7 +57,7 @@ module.exports = {
     mediaHelper.isImage(data.input)
       .then( (isImage) => {
         if (isImage) {
-          dummyThumbnail(data)
+          // dummyThumbnail(data)
           isInputImage = true
           inputOption = '-loop 1'
           output = replaceExt(output, '.mp4')
