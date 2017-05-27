@@ -18,8 +18,10 @@
     "tmp": "/tmp/etna/tmp",
     "output": "/tmp/etna"
   },
-  "meta":{
-    "watermark":"assets/watermark.png"
+  "media": {
+    "meta":{
+      "watermark":"assets/watermark.png"
+    }
   },
   "pingpong":{
     "gif": true,
