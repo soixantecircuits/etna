@@ -3,6 +3,34 @@ var ffmpeg = require('fluent-ffmpeg')
 var standardSettings = require('standard-settings')
 var mediaHelper = require('media-helper')
 var replaceExt = require('replace-ext')
+var exec = require('child_process').exec
+var path = require('path')
+var nconf = require('nconf')
+var standardSettings = require('standard-settings')
+var settings = nconf.get()
+
+var dummyThumbnail = function(data) {
+    // thumbnail
+    var thumbnailPath = data.input
+    var thumbnailDestFilename = path.basename(thumbnailPath)
+    var thumbnailDestPath = path.join(settings.folder.output, thumbnailDestFilename)
+    exec('cp ' + thumbnailPath + ' ' + thumbnailDestPath)
+    var thumbnailStaticPath = 'http://' + settings.server.host + ':' + settings.server.port + '/' + thumbnailDestFilename
+    var details = {
+      width: 0,
+      height: 0,
+      thumbnail: {
+        file: thumbnailDestFilename,
+        width: 0,
+        height: 0,
+        type: 'image/jpg',
+        url: thumbnailStaticPath,
+        path: thumbnailDestPath,
+        source: thumbnailDestPath // legacy
+      }
+    }
+    data.details = details
+}
 
 module.exports = {
   watermark: function (data, callback) {
@@ -29,6 +57,7 @@ module.exports = {
     mediaHelper.isImage(data.input)
       .then( (isImage) => {
         if (isImage) {
+          dummyThumbnail(data)
           isInputImage = true
           inputOption = '-loop 1'
           output = replaceExt(output, '.mp4')
@@ -73,14 +102,35 @@ module.exports = {
             })
             watermarkInput = 'scaled'
           }
-          if (meta.transpose) {
-            complexFilter.push({
-              filter: 'transpose',
-              options: meta.transpose,
-              inputs: videoInput,
-              outputs: 'transposed'
-            })
-            videoInput = 'transposed'
+          if (meta.transform) {
+            if (meta.transform.transpose) {
+              complexFilter.push({
+                filter: 'transpose',
+                options: meta.transform.transpose,
+                inputs: videoInput,
+                outputs: 'transposed'
+              })
+              videoInput = 'transposed'
+            }
+            if (meta.transform.width && meta.transform.height) {
+              complexFilter.push({
+                filter: 'scale',
+                options: meta.transform.width + 'x' + meta.transform.height,
+                inputs: videoInput,
+                outputs: 'inputscaled'
+              })
+              videoInput = 'inputscaled'
+            }
+            if (meta.transform.pad) {
+              complexFilter.push({
+                filter: 'pad',
+                options:  meta.transform.pad.width + ':' + meta.transform.pad.height + ':' + meta.transform.pad.x + ':' + meta.transform.pad.y + ':' + (meta.transform.pad.color || 'white'),
+                inputs: videoInput,
+                outputs: 'inputpadded'
+              })
+              videoInput = 'inputpadded'
+            }
+
           }
 
           complexFilter.push({
@@ -136,6 +186,9 @@ module.exports = {
           })
           .output(output)
           .run()
+      })
+      .catch( (err) => {
+        console.log(err)
       })
   },
   crop: function (data, callback) {
