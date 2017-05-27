@@ -37,7 +37,6 @@ module.exports = {
   },
   photoNuke: function (data, callback) {
     var input = data.input
-    var outputTempPath = data.outputTempPath
     var name = path.basename(data.input, path.extname(data.input))
     var folder = name
     data.outputTempPath = path.join(settings.folder.tmp, folder)
@@ -47,7 +46,7 @@ module.exports = {
         console.log(error)
       } else {
         data.src = data.outputTempPath
-        cosmos.albumSaved(data, function() {
+        cosmos.albumSaved(data, function () {
           var thumbnailDestPath = path.join(settings.folder.output, path.basename(input))
           var thumbnailStaticPath = 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(thumbnailDestPath)
           exec('cp ' + input + ' ' + thumbnailDestPath, function () {

@@ -6,7 +6,7 @@ var mkdirp = require('mkdirp')
 var express = require('express')
 var exec = require('child_process').exec
 var moment = require('moment')
-const spaceBro = require('spacebro-client')
+const spacebroClient = require('spacebro-client')
 require('standard-settings')
 var nconf = require('nconf')
 
@@ -60,7 +60,7 @@ settings.service.spacebro.port = settings.service.spacebro.port || 3333
 settings.service.spacebro.clientName = settings.service.spacebro.clientName || 'etna'
 settings.service.spacebro.channelName = settings.service.spacebro.channelName || 'etna'
 
-spaceBro.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
+spacebroClient.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
   clientName: settings.service.spacebro.clientName,
   channelName: settings.service.spacebro.channelName,
   /* packers: [{ handler: function handler (args) {
@@ -72,13 +72,25 @@ spaceBro.connect(settings.service.spacebro.host, settings.service.spacebro.port,
   verbose: false,
   sendBack: false
 })
-console.log('Connecting to spacebro on ' + settings.service.spacebro.host + ':' + settings.service.spacebro.port)
+console.log(`Connecting to spacebro on ${settings.service.spacebro.host}:${settings.service.spacebro.port}`)
+
+spacebroClient.on('connect', () => {
+  console.log(`spacebro: ${settings.service.spacebro.clientName} connected to ${settings.service.spacebro.host}:${settings.service.spacebro.port}#${settings.service.spacebro.channelName}`)
+})
+
+spacebroClient.on('new-member', (data) => {
+  console.log(`spacebro: ${data.member} has joined.`)
+})
+
+spacebroClient.on('disconnect', () => {
+  console.error('spacebro: connection lost.')
+})
 
 settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
 settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
 // TODO: document 'new-media' data.recipe, data.input, data.output
 // add data.options, like the path for an image to watermark, framerate, ...
-spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
+spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
   console.log('Received new media: ' + JSON.stringify(data))
   if (data.path && data.input === undefined) {
     data.input = data.path
@@ -112,12 +124,12 @@ spaceBro.on(settings.service.spacebro.inputMessage, function (data) {
         delete data.output
         delete data.outputTempPath
         console.log(data)
-        spaceBro.emit(settings.service.spacebro.outputMessage, data)
+        spacebroClient.emit(settings.service.spacebro.outputMessage, data)
       }
     })
   })
 })
-spaceBro.on('etna-stop', function (data) {
+spacebroClient.on('etna-stop', function (data) {
   console.log('kill')
   if (lastCommand) {
     lastCommand.kill('SIGINT')

@@ -1,8 +1,13 @@
 {
   "name": "etna",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A tool for video editing with a json file",
   "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "./node_modules/.bin/nodemon index.js",
+    "test": "./node_modules/.bin/standard recipes/*.js"
+  },
   "directories": {
     "example": "example"
   },
@@ -17,12 +22,12 @@
     "moment": "^2.18.1",
     "recursive-readdir": "^2.1.1",
     "replace-ext": "^1.0.0",
-    "spacebro-client": "0.1.0",
-    "standard-settings": "soixantecircuits/standard-settings"
+    "spacebro-client": "0.3.4",
+    "standard": "^10.0.2",
+    "standard-settings": "1.1.7"
   },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   },
   "repository": {
     "type": "git",
@@ -35,7 +40,7 @@
     "editing"
   ],
   "author": "Emmanuel Geoffray",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/soixantecircuits/etna/issues"
   },
