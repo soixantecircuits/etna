@@ -89,7 +89,6 @@ spacebroClient.on('disconnect', () => {
 settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
 settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
 
-
 var sendMedia = function (data) {
   delete data.input
   delete data.output
@@ -144,6 +143,7 @@ spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
     })
   })
 })
+
 spacebroClient.on('etna-stop', function (data) {
   console.log('kill')
   if (lastCommand) {

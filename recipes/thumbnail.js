@@ -12,7 +12,7 @@ var thumbnail = function (data, callback) {
   var name = path.basename(output, path.extname(path.basename(output)))
   var filename = name + '.png'
   data.outputTempPath = path.join(path.dirname(output), filename)
-  data.output= path.join(path.dirname(data.output), filename)
+  data.output = path.join(path.dirname(data.output), filename)
   if (typeof meta.thumbnail !== 'object' || meta.thumbnail.position === undefined) {
     meta.thumbnail = meta.thumbnail || {}
     meta.thumbnail.position = '50%'
