@@ -3,8 +3,8 @@ var path = require('path')
 var exec = require('child_process').exec
 var mkdirp = require('mkdirp')
 var cosmos = require('./cosmos')
-var nconf = require('nconf')
-var settings = nconf.get()
+var standardSettings = require('standard-settings')
+var settings = standardSettings.getSettings()
 
 var nukeScript = function (data, callback) {
   var input = data.input

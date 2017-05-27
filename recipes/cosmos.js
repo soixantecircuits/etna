@@ -3,9 +3,8 @@ var ffmpeg = require('fluent-ffmpeg')
 var path = require('path')
 // var settings = require('./../config.json')
 var exec = require('child_process').exec
-var nconf = require('nconf')
 var standardSettings = require('standard-settings')
-var settings = nconf.get()
+var settings = standardSettings.getSettings()
 
 var pingpong = function (data, callback) {
   var input = data.input

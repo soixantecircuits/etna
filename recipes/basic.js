@@ -5,31 +5,29 @@ var mediaHelper = require('media-helper')
 var replaceExt = require('replace-ext')
 var exec = require('child_process').exec
 var path = require('path')
-var nconf = require('nconf')
-var standardSettings = require('standard-settings')
-var settings = nconf.get()
+var settings = standardSettings.getSettings()
 
-var dummyThumbnail = function(data) {
+var dummyThumbnail = function (data) {
     // thumbnail
-    var thumbnailPath = data.input
-    var thumbnailDestFilename = path.basename(thumbnailPath)
-    var thumbnailDestPath = path.join(settings.folder.output, thumbnailDestFilename)
-    exec('cp ' + thumbnailPath + ' ' + thumbnailDestPath)
-    var thumbnailStaticPath = 'http://' + settings.server.host + ':' + settings.server.port + '/' + thumbnailDestFilename
-    var details = {
+  var thumbnailPath = data.input
+  var thumbnailDestFilename = path.basename(thumbnailPath)
+  var thumbnailDestPath = path.join(settings.folder.output, thumbnailDestFilename)
+  exec('cp ' + thumbnailPath + ' ' + thumbnailDestPath)
+  var thumbnailStaticPath = 'http://' + settings.server.host + ':' + settings.server.port + '/' + thumbnailDestFilename
+  var details = {
+    width: 0,
+    height: 0,
+    thumbnail: {
+      file: thumbnailDestFilename,
       width: 0,
       height: 0,
-      thumbnail: {
-        file: thumbnailDestFilename,
-        width: 0,
-        height: 0,
-        type: 'image/jpg',
-        url: thumbnailStaticPath,
-        path: thumbnailDestPath,
-        source: thumbnailDestPath // legacy
-      }
+      type: 'image/jpg',
+      url: thumbnailStaticPath,
+      path: thumbnailDestPath,
+      source: thumbnailDestPath // legacy
     }
-    data.details = details
+  }
+  data.details = details
 }
 
 module.exports = {
@@ -55,7 +53,7 @@ module.exports = {
     var isInputImage = false
 
     mediaHelper.isImage(data.input)
-      .then( (isImage) => {
+      .then((isImage) => {
         if (isImage) {
           // dummyThumbnail(data)
           isInputImage = true
@@ -66,7 +64,7 @@ module.exports = {
         }
         return mediaHelper.isImage(watermark.path)
       })
-      .then( (isImage) => {
+      .then((isImage) => {
         if (isImage) {
           watermarkInputOption = '-loop 1'
         }
@@ -77,7 +75,7 @@ module.exports = {
           var fadeDuration = watermark.fadeDuration || 0.2
           start = Math.max(start, 0)
           end = Math.max(end, 0)
-          withAudio = ! (watermark.keepAudio === false)
+          withAudio = !(watermark.keepAudio === false)
 
           x = watermark.x || 0
           y = watermark.y || 0
@@ -124,18 +122,17 @@ module.exports = {
             if (meta.transform.pad) {
               complexFilter.push({
                 filter: 'pad',
-                options:  meta.transform.pad.width + ':' + meta.transform.pad.height + ':' + meta.transform.pad.x + ':' + meta.transform.pad.y + ':' + (meta.transform.pad.color || 'white'),
+                options: meta.transform.pad.width + ':' + meta.transform.pad.height + ':' + meta.transform.pad.x + ':' + meta.transform.pad.y + ':' + (meta.transform.pad.color || 'white'),
                 inputs: videoInput,
                 outputs: 'inputpadded'
               })
               videoInput = 'inputpadded'
             }
-
           }
 
           complexFilter.push({
-            //filter: 'format=pix_fmts=yuva420p,fade',
-            //options: 'in:st=' + start + ':d=' + fadeDuration + ':alpha=1,fade=out:st=' + end + ':d=' + fadeDuration + ':alpha=1',
+            // filter: 'format=pix_fmts=yuva420p,fade',
+            // options: 'in:st=' + start + ':d=' + fadeDuration + ':alpha=1,fade=out:st=' + end + ':d=' + fadeDuration + ':alpha=1',
             filter: 'fade',
             options: 'in:st=' + start + ':d=' + fadeDuration + ':alpha=1,fade=out:st=' + end + ':d=' + fadeDuration + ':alpha=1',
             inputs: watermarkInput,
@@ -187,7 +184,7 @@ module.exports = {
           .output(output)
           .run()
       })
-      .catch( (err) => {
+      .catch((err) => {
         console.log(err)
       })
   },

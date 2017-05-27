@@ -1,8 +1,7 @@
 'use strict'
 var ffmpeg = require('fluent-ffmpeg')
 var standardSettings = require('standard-settings')
-var nconf = require('nconf')
-var settings = nconf.get()
+var settings = standardSettings.getSettings()
 var path = require('path')
 var replaceExt = require('replace-ext')
 var thumbnail = require('./../thumbnail').thumbnail

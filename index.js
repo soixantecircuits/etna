@@ -8,11 +8,11 @@ var exec = require('child_process').exec
 var moment = require('moment')
 const spacebroClient = require('spacebro-client')
 var standardSettings = require('standard-settings')
-var nconf = require('nconf')
+var settings = standardSettings.getSettings()
 
 var recipes = require('./recipes')
 
-var settings = nconf.get()
+
 mkdirp(settings.folder.output)
 mkdirp(settings.folder.tmp)
 
@@ -45,20 +45,11 @@ if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
 var lastCommand
 
 // init static server to serve generated files
-settings.server = settings.server || {}
-settings.server.host = settings.server.host || 'localhost'
-settings.server.port = settings.server.port || 8866
 var app = express()
 app.use(express['static'](settings.folder.output))
 app.listen(process.env.PORT || settings.server.port)
-console.log('Serving on http://' + settings.server.host + ':' + settings.server.port)
 
-// connect to spacebro to receive media to process
-settings.service.spacebro = settings.service.spacebro || {}
-settings.service.spacebro.host = settings.service.spacebro.host || 'spacebro.space'
-settings.service.spacebro.port = settings.service.spacebro.port || 3333
-settings.service.spacebro.clientName = settings.service.spacebro.clientName || 'etna'
-settings.service.spacebro.channelName = settings.service.spacebro.channelName || 'etna'
+console.log(`Serving on http://${settings.server.host}:${settings.server.port}`)
 
 spacebroClient.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
   clientName: settings.service.spacebro.clientName,
@@ -85,9 +76,6 @@ spacebroClient.on('new-member', (data) => {
 spacebroClient.on('disconnect', () => {
   console.error('spacebro: connection lost.')
 })
-
-settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
-settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
 
 var sendMedia = function (data) {
   delete data.input
@@ -129,7 +117,7 @@ spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
         data.meta.etnaInput = JSON.parse(JSON.stringify(data))
         data.path = data.output
         data.file = path.basename(data.output)
-        data.url = 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.output)
+        data.url = `http://${settings.server.host}:${settings.server.port}/${path.basename(data.output)}`
         var meta = standardSettings.getMeta(data)
         if (meta.thumbnail) {
           data.input = data.output
@@ -137,7 +125,7 @@ spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
             sendMedia(data)
           })
         } else {
-            sendMedia(data)
+          sendMedia(data)
         }
       }
     })

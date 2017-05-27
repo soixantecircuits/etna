@@ -1,9 +1,8 @@
 'use strict'
 var ffmpeg = require('fluent-ffmpeg')
 var path = require('path')
-var nconf = require('nconf')
 var standardSettings = require('standard-settings')
-var settings = nconf.get()
+var settings = standardSettings.getSettings()
 
 var thumbnail = function (data, callback) {
   var meta = standardSettings.getMeta(data)
