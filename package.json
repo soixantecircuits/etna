@@ -3,6 +3,11 @@
   "version": "1.0.1",
   "description": "A tool for video editing with a json file",
   "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "./node_modules/.bin/nodemon index.js",
+    "test": "./node_modules/.bin/standard recipes/*.js"
+  },
   "directories": {
     "example": "example"
   },
@@ -20,10 +25,8 @@
     "standard": "^10.0.2",
     "standard-settings": "1.1.7"
   },
-  "devDependencies": {},
-  "scripts": {
-    "start": "node index.js",
-    "test": "./node_modules/.bin/standard recipes/*.js"
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   },
   "repository": {
     "type": "git",
