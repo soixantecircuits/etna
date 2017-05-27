@@ -47,10 +47,10 @@ setTimeout( () => {
         width: 234,
         height: 128,
         keepAudio: false
-      }/* ,
+      },
       thumbnail: {
-        position: '50%'
-      } */
+        position: 5
+      }
     }
   })
   console.log(`emit ${settings.service.spacebro.inputMessage}`)

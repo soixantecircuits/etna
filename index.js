@@ -7,7 +7,7 @@ var express = require('express')
 var exec = require('child_process').exec
 var moment = require('moment')
 const spacebroClient = require('spacebro-client')
-require('standard-settings')
+var standardSettings = require('standard-settings')
 var nconf = require('nconf')
 
 var recipes = require('./recipes')
@@ -134,7 +134,7 @@ spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
         var meta = standardSettings.getMeta(data)
         if (meta.thumbnail) {
           data.input = data.output
-          addThumbnail(data, () => {
+          recipes.recipe('addThumbnail')(data, () => {
             sendMedia(data)
           })
         } else {
