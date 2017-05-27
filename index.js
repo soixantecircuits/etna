@@ -119,6 +119,7 @@ spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
         }
         data.meta.etnaInput = JSON.parse(JSON.stringify(data))
         data.path = data.output
+        data.file = path.basename(data.output)
         data.url = 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.output)
         delete data.input
         delete data.output
