@@ -11,7 +11,7 @@ settings.service.spacebro.clientName = settings.service.spacebro.clientName || '
 settings.service.spacebro.channelName = settings.service.spacebro.channelName || 'etna'
 
 spacebroClient.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
-  clientName: settings.service.spacebro.clientName + 'test',
+  clientName: settings.service.spacebro.clientName + '-test',
   channelName: settings.service.spacebro.channelName,
   verbose: false,
   sendBack: false
@@ -28,6 +28,7 @@ settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessag
 spacebroClient.on(settings.service.spacebro.outputMessage, function (data) {
   console.log('video is ready:')
   console.log(data)
+  console.log(data.url)
 })
 
 spacebroClient.on('connect', () => {
