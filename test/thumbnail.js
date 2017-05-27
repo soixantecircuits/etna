@@ -33,7 +33,7 @@ spacebroClient.on(settings.service.spacebro.outputMessage, function (data) {
 //spacebroClient.on('connect', () => {
 setTimeout( () => {
   spacebroClient.emit(settings.service.spacebro.inputMessage, {
-    recipe: 'addThumbnail',
+    recipe: 'thumbnail',
     input: 'example/calculatedmovements.mp4',
     meta: {
       thumbnail: {

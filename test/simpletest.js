@@ -29,7 +29,8 @@ spacebroClient.on(settings.service.spacebro.outputMessage, function (data) {
   console.log(`video is ready: ${data.url}`)
 })
 
-spacebroClient.on('connect', () => {
+//spacebroClient.on('connect', () => {
+setTimeout( () => {
   spacebroClient.emit(settings.service.spacebro.inputMessage, {
     recipe: 'watermark',
     input: 'example/calculatedmovements.mp4',
@@ -46,8 +47,11 @@ spacebroClient.on('connect', () => {
         width: 234,
         height: 128,
         keepAudio: false
-      }
+      }/* ,
+      thumbnail: {
+        position: '50%'
+      } */
     }
   })
   console.log(`emit ${settings.service.spacebro.inputMessage}`)
-})
+}, 300)

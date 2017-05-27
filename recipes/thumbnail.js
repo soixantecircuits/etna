@@ -40,7 +40,8 @@ var thumbnail = function (data, callback) {
 }
 
 var addThumbnail = function (data, callback) {
-  data.input = data.outputTempPath
+  var input = data.input
+  var output = data.output
   var outputTempPath = data.outputTempPath
   var name = path.basename(outputTempPath, path.extname(path.basename(outputTempPath)))
   var filename = name + '.png'
@@ -53,7 +54,8 @@ var addThumbnail = function (data, callback) {
       path: data.outputTempPath,
       url: 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.outputTempPath)
     }
-    data.outputTempPath = outputTempPath
+    data.outputTempPath = input
+    data.output = output
     if (callback) return callback(null)
   })
 }
