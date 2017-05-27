@@ -36,7 +36,7 @@ You can use etna by sending commands via spacebro.
 The example above watermarks a video
 
 ```
-spaceBro.emit('new-media-for-etna', {
+spacebroClient.emit('new-media-for-etna', {
   recipe: 'watermark',
   input: 'example/calculatedmovements.mp4',
   params: {watermark: 'example/pacman.mov'}
@@ -57,6 +57,28 @@ and start the example script
 ```
 node test/simpletest.js
 ```
+
+## Recipes
+
+A recipe is an operation on the input media. Like the watermark above, or a crop, or anything you could do on a video or image.
+
+All recipes are in the `recipes` folder.
+To use a recipe, mention in in the media sent on spacebro, or in the settings.
+
+## Thumbnail
+
+You often need a thumbnail of the video generated.
+If so, you can add in the media meta:
+
+```
+meta: {
+  thumbnail: {
+    position: '50%'
+  }
+```
+
+Position can be either a float representing a time in seconds, or a percent of the video duration.
+
 
 ## Command-line
 
