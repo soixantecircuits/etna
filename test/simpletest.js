@@ -11,7 +11,7 @@ settings.service.spacebro.clientName = settings.service.spacebro.clientName || '
 settings.service.spacebro.channelName = settings.service.spacebro.channelName || 'etna'
 
 spacebroClient.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
-  clientName: settings.service.spacebro.clientName + 'test',
+  clientName: settings.service.spacebro.clientName + '-test',
   channelName: settings.service.spacebro.channelName,
   verbose: false,
   sendBack: false
@@ -25,9 +25,8 @@ spacebroClient.on('connect', () => {
 
 settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
 settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
-spaceBro.on(settings.service.spacebro.outputMessage, function (data) {
-  console.log('video is ready: ' + data.url)
-  // process.exit()
+spacebroClient.on(settings.service.spacebro.outputMessage, function (data) {
+  console.log(`video is ready: ${data.url}`)
 })
 
 spacebroClient.on('connect', () => {
@@ -45,26 +44,7 @@ spacebroClient.on('connect', () => {
         x: 30,
         y: 100,
         width: 234,
-        height: 128
-      }
-    }
-  })
-  console.log('emit ')
-}, 300)
-setTimeout(function () {
-  spaceBro.emit(settings.service.spacebro.inputMessage, {
-    recipe: 'watermark',
-    path: 'assets/picture.png',
-    meta: {
-      watermark: {
-        path: 'example/pacman.mov',
-        start: 0,
-        end: 3,
-        fadeDuration: 0.5,
-        x: 200,
-        y: 200,
-        width: 200,
-        height: 200,
+        height: 128,
         keepAudio: false
       }
     }

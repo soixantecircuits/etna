@@ -8,7 +8,7 @@
       "host": "spacebro.space",
       "port": 3333,
       "clientName": "etna",
-      "channelName": "etna",
+      "channelName": "media-stream",
       "inputMessage": "new-media-for-etna",
       "outputMessage": "new-media-from-etna"
     }
