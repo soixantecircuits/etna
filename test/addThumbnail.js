@@ -26,7 +26,7 @@ spacebroClient.on('connect', () => {
 settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
 settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
 spacebroClient.on(settings.service.spacebro.outputMessage, function (data) {
-  console.log('video is ready: ' + data.url)
+  console.log('video is ready: ' + data)
   process.exit()
 })
 
@@ -34,7 +34,7 @@ spacebroClient.on(settings.service.spacebro.outputMessage, function (data) {
 setTimeout( () => {
   spacebroClient.emit(settings.service.spacebro.inputMessage, {
     recipe: 'addThumbnail',
-    input: 'example/calculatedmovements.mp4',
+    path: 'example/calculatedmovements.mp4',
     meta: {
       thumbnail: {
         position: '50%'

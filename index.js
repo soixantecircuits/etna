@@ -106,29 +106,34 @@ spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
   var recipeFn = recipes.recipe(recipe)
   lastCommand = recipeFn(data, function () {
     // fs.rename(data.outputTempPath, data.output, function (err) {
-    exec('mv ' + data.outputTempPath + ' ' + data.output, function (err) {
-      if (err) {
-        console.log(err)
-      } else {
-        console.log('finished processing ' + data.output)
-        if (data.meta === undefined) {
-          data.meta = {}
-        }
-        data.meta.etnaInput = JSON.parse(JSON.stringify(data))
-        data.path = data.output
-        data.file = path.basename(data.output)
-        data.url = `http://${settings.server.host}:${settings.server.port}/${path.basename(data.output)}`
-        var meta = standardSettings.getMeta(data)
-        if (meta.thumbnail) {
-          data.input = data.output
-          recipes.recipe('addThumbnail')(data, () => {
-            sendMedia(data)
-          })
+    if (recipe !== 'addThumbnail') {
+      exec('mv ' + data.outputTempPath + ' ' + data.output, function (err) {
+        if (err) {
+          console.log(err)
         } else {
-          sendMedia(data)
+          console.log('finished processing ' + data.output)
+          if (data.meta === undefined) {
+            data.meta = {}
+          }
+          data.meta.etnaInput = JSON.parse(JSON.stringify(data))
+          data.path = data.output
+          data.file = path.basename(data.output)
+          data.url = `http://${settings.server.host}:${settings.server.port}/${path.basename(data.output)}`
+          var meta = standardSettings.getMeta(data)
+          if (meta.thumbnail) {
+            data.input = data.output
+            recipes.recipe('addThumbnail')(data, () => {
+              sendMedia(data)
+            })
+          } else {
+            sendMedia(data)
+          }
         }
-      }
-    })
+      })
+    } else {
+      sendMedia(data)
+    }
+
   })
 })
 
