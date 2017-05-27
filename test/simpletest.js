@@ -21,7 +21,8 @@ console.log('Connecting to spacebro on ' + settings.service.spacebro.host + ':' 
 settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
 settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
 spaceBro.on(settings.service.spacebro.outputMessage, function (data) {
-  console.log('video is ready: ' + data.output)
+  console.log('video is ready: ' + data.url)
+  // process.exit()
 })
 
 setTimeout(function () {
@@ -32,15 +33,34 @@ setTimeout(function () {
     // meta: {watermark: 'assets/watermark.png'}
     meta: {
       watermark: {
-        // path: 'example/pacman.mov',
         path: 'assets/watermark.png',
-        start: 5,
+        start: 0,
         end: 10,
         fadeDuration: 0.5,
         x: 30,
         y: 100,
-        width: 20,
-        height: 20
+        width: 234,
+        height: 128
+      }
+    }
+  })
+  console.log('emit ')
+}, 300)
+setTimeout(function () {
+  spaceBro.emit(settings.service.spacebro.inputMessage, {
+    recipe: 'watermark',
+    path: 'assets/picture.png',
+    meta: {
+      watermark: {
+        path: 'example/pacman.mov',
+        start: 0,
+        end: 3,
+        fadeDuration: 0.5,
+        x: 200,
+        y: 200,
+        width: 200,
+        height: 200,
+        keepAudio: false
       }
     }
   })
