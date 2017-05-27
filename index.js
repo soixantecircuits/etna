@@ -114,11 +114,12 @@ spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
         console.log(err)
       } else {
         console.log('finished processing ' + data.output)
-        if (data.details === undefined) {
-          data.details = {}
+        if (data.meta === undefined) {
+          data.meta = {}
         }
-        data.details.etnaInput = JSON.parse(JSON.stringify(data))
+        data.meta.etnaInput = JSON.parse(JSON.stringify(data))
         data.path = data.output
+        data.file = path.basename(data.output)
         data.url = 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.output)
         delete data.input
         delete data.output

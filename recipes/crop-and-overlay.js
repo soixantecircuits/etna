@@ -1,10 +1,41 @@
 'use strict'
 var ffmpeg = require('fluent-ffmpeg')
 var standardSettings = require('standard-settings')
+var mediaHelper = require('media-helper')
+var replaceExt = require('replace-ext')
+var exec = require('child_process').exec
+var path = require('path')
+var nconf = require('nconf')
+var standardSettings = require('standard-settings')
+var settings = nconf.get()
+
+var dummyThumbnail = function(data) {
+    // thumbnail
+    var thumbnailPath = data.input
+    var thumbnailDestFilename = path.basename(thumbnailPath)
+    var thumbnailDestPath = path.join(settings.folder.output, thumbnailDestFilename)
+    exec('cp ' + thumbnailPath + ' ' + thumbnailDestPath)
+    var thumbnailStaticPath = 'http://' + settings.server.host + ':' + settings.server.port + '/' + thumbnailDestFilename
+    var details = {
+      width: 0,
+      height: 0,
+      thumbnail: {
+        file: thumbnailDestFilename,
+        width: 0,
+        height: 0,
+        type: 'image/jpg',
+        url: thumbnailStaticPath,
+        path: thumbnailDestPath,
+        source: thumbnailDestPath // legacy
+      }
+    }
+    data.details = details
+}
 
 module.exports = {
   watermark: function (data, callback) {
-    var watermark = standardSettings.getMeta(data).watermark
+    var meta = standardSettings.getMeta(data)
+    var watermark = meta.watermark
     if (watermark === undefined || watermark.path === undefined) {
       data.outputTempPath = data.input
       if (callback) return callback(null)
@@ -13,86 +44,152 @@ module.exports = {
     var input = data.input
     var output = data.outputTempPath
     var complexFilter = []
-    var inputOption
+    var inputOption = ''
+    var watermarkInputOption = ''
     var x = 0
     var y = 0
     var withAudio = true
-    if (typeof watermark === 'object') {
-      var start = watermark.start || 0
-      var end = watermark.end || start + 2
-      var fadeDuration = watermark.fadeDuration || 0.2
-      start = Math.max(start, 0)
-      end = Math.max(end, 0)
-      withAudio = watermark.keepAudio
+    if (typeof watermark !== 'object') {
+      watermark = { path: watermark}
+    }
+    var isInputImage = false
 
-      x = watermark.x || 0
-      y = watermark.y || 0
-      x = Math.max(Math.round(x), 0)
-      y = Math.max(Math.round(y), 0)
-      inputOption = '-loop 1'
-      var inputVideo = '1:0'
-      if (watermark.width) {
-        var width = watermark.width || 100
-        var height = watermark.height || 100
-        width = Math.max(Math.round(width), 0)
-        height = Math.max(Math.round(height), 0)
-        complexFilter.push({
-          filter: 'scale',
-          options: width + 'x' + height,
-          inputs: inputVideo,
-          outputs: 'scaled'
-        })
-        inputVideo = 'scaled'
-      }
-      watermark = watermark.path
+    mediaHelper.isImage(data.input)
+      .then( (isImage) => {
+        if (isImage) {
+          dummyThumbnail(data)
+          isInputImage = true
+          inputOption = '-loop 1'
+          output = replaceExt(output, '.mp4')
+          data.output = replaceExt(data.output, '.mp4')
+          data.outputTempPath = replaceExt(data.outputTempPath, '.mp4')
+        }
+        return mediaHelper.isImage(watermark.path)
+      })
+      .then( (isImage) => {
+        if (isImage) {
+          watermarkInputOption = '-loop 1'
+        }
+        isImage = true
+        if (watermark.end) {
+          var start = watermark.start || 0
+          var end = watermark.end || start + 2
+          var fadeDuration = watermark.fadeDuration || 0.2
+          start = Math.max(start, 0)
+          end = Math.max(end, 0)
+          withAudio = ! (watermark.keepAudio === false)
 
-      complexFilter.push({
-        filter: 'fade',
-        options: 'in:st=' + start + ':d=' + fadeDuration + ',fade=out:st=' + end + ':d=' + fadeDuration,
-        inputs: inputVideo,
-        outputs: 'watermark'
-      },
-        {
-          filter: 'overlay',
-          options: [x + ':' + y, 'format=rgb', 'shortest=1'],
-          inputs: ['0:v', 'watermark'],
-          outputs: 'output'
-        })
-    } else {
-      complexFilter.push({
-        filter: 'overlay',
-        options: ['format=rgb'],
-        inputs: ['0:v', '1:0'],
-        outputs: 'output'
+          x = watermark.x || 0
+          y = watermark.y || 0
+          x = Math.max(Math.round(x), 0)
+          y = Math.max(Math.round(y), 0)
+          var overlayOptions = [x + ':' + y, 'format=rgb']
+          if (isImage || isInputImage) {
+            overlayOptions.push('shortest=1')
+          }
+          var watermarkInput = '1:0'
+          var videoInput = '0:v'
+          if (watermark.width) {
+            var width = watermark.width || 100
+            var height = watermark.height || 100
+            width = Math.max(Math.round(width), 0)
+            height = Math.max(Math.round(height), 0)
+            complexFilter.push({
+              filter: 'scale',
+              options: width + 'x' + height,
+              inputs: watermarkInput,
+              outputs: 'scaled'
+            })
+            watermarkInput = 'scaled'
+          }
+          if (meta.transform) {
+            if (meta.transform.transpose) {
+              complexFilter.push({
+                filter: 'transpose',
+                options: meta.transform.transpose,
+                inputs: videoInput,
+                outputs: 'transposed'
+              })
+              videoInput = 'transposed'
+            }
+            if (meta.transform.width && meta.transform.height) {
+              complexFilter.push({
+                filter: 'scale',
+                options: meta.transform.width + 'x' + meta.transform.height,
+                inputs: videoInput,
+                outputs: 'inputscaled'
+              })
+              videoInput = 'inputscaled'
+            }
+            if (meta.transform.pad) {
+              complexFilter.push({
+                filter: 'pad',
+                options:  meta.transform.pad.width + ':' + meta.transform.pad.height + ':' + meta.transform.pad.x + ':' + meta.transform.pad.y + ':' + (meta.transform.pad.color || 'white'),
+                inputs: videoInput,
+                outputs: 'inputpadded'
+              })
+              videoInput = 'inputpadded'
+            }
+
+          }
+
+          complexFilter.push({
+            //filter: 'format=pix_fmts=yuva420p,fade',
+            //options: 'in:st=' + start + ':d=' + fadeDuration + ':alpha=1,fade=out:st=' + end + ':d=' + fadeDuration + ':alpha=1',
+            filter: 'fade',
+            options: 'in:st=' + start + ':d=' + fadeDuration + ':alpha=1,fade=out:st=' + end + ':d=' + fadeDuration + ':alpha=1',
+            inputs: watermarkInput,
+            outputs: 'watermark'
+          },
+            {
+              filter: 'overlay',
+              options: overlayOptions,
+              inputs: [videoInput, 'watermark'],
+              outputs: 'output'
+            })
+        } else {
+          complexFilter.push({
+            filter: 'overlay',
+            options: ['format=rgb'],
+            inputs: ['0:v', '1:0'],
+            outputs: 'output'
+          })
+        }
+
+        var proc = ffmpeg(input)
+        if (inputOption) {
+          proc.inputOptions(inputOption)
+        }
+        proc
+          .input(watermark.path)
+        if (watermarkInputOption) {
+          proc.inputOptions(watermarkInputOption)
+        }
+        proc
+          .videoCodec('libx264')
+          .complexFilter(complexFilter, 'output')
+          .outputOptions(['-pix_fmt yuv420p'])
+        if (withAudio) {
+          proc
+            .outputOptions(['-map 0:a'])
+        }
+        proc
+          .on('end', function () {
+            console.log('files have been watermarked succesfully')
+            if (callback) return callback(null)
+          })
+          .on('error', function (err, stdout, stderr) {
+            console.log('an error happened: ' + err.message, stdout, stderr)
+          })
+          .on('start', function (commandLine) {
+            console.log('Spawned Ffmpeg with command: ' + commandLine)
+          })
+          .output(output)
+          .run()
       })
-    }
-    var proc = ffmpeg(input)
-    if (inputOption) {
-      proc.input(watermark).inputOptions(inputOption)
-    } else {
-      proc.input(watermark)
-    }
-    proc
-      .videoCodec('libx264')
-      .complexFilter(complexFilter, 'output')
-      .outputOptions(['-pix_fmt yuv420p'])
-    if (withAudio) {
-      proc
-        .outputOptions(['-map 0:a'])
-    }
-    proc
-      .on('end', function () {
-        console.log('files have been watermarked succesfully')
-        if (callback) return callback(null)
+      .catch( (err) => {
+        console.log(err)
       })
-      .on('error', function (err, stdout, stderr) {
-        console.log('an error happened: ' + err.message, stdout, stderr)
-      })
-      .on('start', function (commandLine) {
-        console.log('Spawned Ffmpeg with command: ' + commandLine)
-      })
-      .output(output)
-      .run()
   },
   crop: function (data, callback) {
     var input = data.input
