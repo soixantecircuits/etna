@@ -85,10 +85,8 @@ var sendMedia = function (data) {
   console.log(data)
 }
 
-// TODO: document 'new-media' data.recipe, data.input, data.output
-// add data.options, like the path for an image to watermark, framerate, ...
-spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
-  console.log('Received new media: ' + JSON.stringify(data))
+var onInputReceived = data => {
+  console.log(`Received event ${settings.service.spacebro.inputMessage}, new media: ${JSON.stringify(data)}`)
   if (data.path && data.input === undefined) {
     data.input = data.path
   }
@@ -135,7 +133,11 @@ spacebroClient.on(settings.service.spacebro.inputMessage, function (data) {
     }
 
   })
-})
+}
+
+// TODO: document 'new-media' data.recipe, data.input, data.output
+// add data.options, like the path for an image to watermark, framerate, ...
+spacebroClient.on(settings.service.spacebro.inputMessage, data => { onInputReceived(data) })
 
 spacebroClient.on('etna-stop', function (data) {
   console.log('kill')
