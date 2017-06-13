@@ -45,13 +45,15 @@ var record = function (data, callback) {
   var mjpgStream = meta.mjpgStream
   var duration = meta.duration || 5
   var outputFps = meta.outputFps || 30
+  var inputFps = meta.inputFps || 30
   var bitrate = meta.bitrate || '3500k'
+  var thread_queue_size = meta.thread_queue_size || '100024'
   var command = ffmpeg()
   var audioOption = meta.audioOption
   if (audioDevice) {
     command
       .input(audioDevice)
-      .inputOptions('-thread_queue_size 512')
+      .inputOptions('-thread_queue_size ' + thread_queue_size)
       .inputOptions(['-f alsa', '-ac 2'])
   }
   if (audioOption) {
@@ -60,7 +62,7 @@ var record = function (data, callback) {
   }
   command
       .input(mjpgStream)
-      .inputOptions(['-f mjpeg', '-r 30'])
+      .inputOptions(['-f mjpeg', '-r ' + inputFps])
       // .audioCodec('libmp3lame')
       .videoCodec('libx264')
       .outputOptions(['-pix_fmt yuv420p', '-b:v ' + bitrate, '-t ' + duration])

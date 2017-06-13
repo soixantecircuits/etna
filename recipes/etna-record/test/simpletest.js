@@ -30,11 +30,13 @@ setTimeout(function () {
     // path: 'record.mp4', // optional, if not defined it will be a timestamp
     meta: {
       // mjpgStream: 'http://localhost:8880/?action=stream',
-      mjpgStream: 'http://ysl-cam-center:8080/?action=stream',
+      mjpgStream: 'http://smilecooker-box-03.estu.la:6080/?action=stream',
       duration: 10,
       mirror: true,
       // audioDevice: 'default'
-      audioDevice: false
+      audioDevice: false,
+      inputFps: 30,
+      outputFps: 30
     }
   })
   console.log('emit ')
