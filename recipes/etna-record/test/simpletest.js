@@ -11,7 +11,7 @@ settings.service.spacebro.clientName = settings.service.spacebro.clientName || '
 settings.service.spacebro.channelName = settings.service.spacebro.channelName || 'etna'
 
 spaceBro.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
-  clientName: settings.service.spacebro.clientName,
+  clientName: settings.service.spacebro.clientName + '-test',
   channelName: settings.service.spacebro.channelName,
   verbose: false,
   sendBack: false
@@ -21,7 +21,7 @@ console.log('Connecting to spacebro on ' + settings.service.spacebro.host + ':' 
 settings.service.spacebro.inputMessage = settings.service.spacebro.inputMessage || 'new-media-for-etna'
 settings.service.spacebro.outputMessage = settings.service.spacebro.outputMessage || 'new-media-from-etna'
 spaceBro.on(settings.service.spacebro.outputMessage, function (data) {
-  console.log('video is ready: ' + data.output)
+  console.log('video is ready: ' + data.url)
 })
 
 setTimeout(function () {
@@ -30,13 +30,14 @@ setTimeout(function () {
     // path: 'record.mp4', // optional, if not defined it will be a timestamp
     meta: {
       // mjpgStream: 'http://localhost:8880/?action=stream',
-      mjpgStream: 'http://smilecooker-box-03.estu.la:6080/?action=stream',
+      //mjpgStream: 'http://smilecooker-box-03.estu.la:6080/?action=stream',
+      mjpgStream: 'http://eth0.master-sci.estu.la:6080/?action=stream',
       duration: 10,
       mirror: true,
       // audioDevice: 'default'
       audioDevice: false,
-      inputFps: 30,
-      outputFps: 30
+      inputFps: 20,
+      outputFps: 20
     }
   })
   console.log('emit ')

@@ -154,6 +154,10 @@ module.exports = {
         }
 
         var proc = ffmpeg(input)
+        if (meta.audioCodec) {
+          proc
+            .audioCodec(meta.audioCodec)
+        }
         if (inputOption) {
           proc.inputOptions(inputOption)
         }
