@@ -7,10 +7,30 @@
     "spacebro":{
       "host": "spacebro.space",
       "port": 3333,
-      "clientName": "etna",
       "channelName": "media-stream",
-      "inputMessage": "new-media-for-etna",
-      "outputMessage": "new-media-from-etna"
+      "client": {
+        "name": "etna",
+        "description": "a tool to process videos, using ffmpeg and nuke",
+				"in": {
+					"inMedia": {
+						"eventName": "inMedia",
+						"description": "Input media that etna will process, can be a photo or a video",
+						"type": "all"
+					},
+					"stopLastProcess": {
+						"eventName": "stopLastProcess",
+						"description": "stop last run process, useful to stop a recording",
+						"type": "all"
+					}
+				},
+				"out": {
+					"outVideo": {
+						"eventName": "outVideo",
+						"description": "Output video, processed by etna",
+						"type": "all"
+					}
+        }
+      }
     }
   },
   "recipe": "watermark",

@@ -6,12 +6,11 @@ var mkdirp = require('mkdirp')
 var express = require('express')
 var exec = require('child_process').exec
 var moment = require('moment')
-const spacebroClient = require('spacebro-client')
+const SpacebroClient = require('spacebro-client').SpacebroClient
 var standardSettings = require('standard-settings')
 var settings = standardSettings.getSettings()
 
 var recipes = require('./recipes')
-
 
 mkdirp(settings.folder.output)
 mkdirp(settings.folder.tmp)
@@ -51,9 +50,9 @@ app.listen(process.env.PORT || settings.server.port)
 
 console.log(`Serving on http://${settings.server.host}:${settings.server.port}`)
 
-spacebroClient.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
-  clientName: settings.service.spacebro.clientName,
+var spacebroClient = new SpacebroClient(settings.service.spacebro.host, settings.service.spacebro.port, {
   channelName: settings.service.spacebro.channelName,
+  client: settings.service.spacebro.client,
   /* packers: [{ handler: function handler (args) {
       return console.log(args.eventName, '=>', args.data)
   } }],
@@ -67,10 +66,11 @@ console.log(`Connecting to spacebro on ${settings.service.spacebro.host}:${setti
 
 spacebroClient.on('connect', () => {
   console.log(`spacebro: ${settings.service.spacebro.clientName} connected to ${settings.service.spacebro.host}:${settings.service.spacebro.port}#${settings.service.spacebro.channelName}`)
+  spacebroClient.emit('addConnections', settings.service.spacebro.connection)
 })
 
-spacebroClient.on('new-member', (data) => {
-  console.log(`spacebro: ${data.member} has joined.`)
+spacebroClient.on('newClient', (data) => {
+  console.log(`spacebro: ${data.name} has joined.`)
 })
 
 spacebroClient.on('disconnect', () => {
@@ -81,12 +81,12 @@ var sendMedia = function (data) {
   delete data.input
   delete data.output
   delete data.outputTempPath
-  spacebroClient.emit(settings.service.spacebro.outputMessage, data)
+  spacebroClient.emit(settings.service.spacebro.client.out.outVideo.eventName, data)
   console.log(data)
 }
 
 var onInputReceived = data => {
-  console.log(`Received event ${settings.service.spacebro.inputMessage}, new media: ${JSON.stringify(data)}`)
+  console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
   if (data.path && data.input === undefined) {
     data.input = data.path
   }
@@ -131,15 +131,14 @@ var onInputReceived = data => {
     } else {
       sendMedia(data)
     }
-
   })
 }
 
 // TODO: document 'new-media' data.recipe, data.input, data.output
 // add data.options, like the path for an image to watermark, framerate, ...
-spacebroClient.on(settings.service.spacebro.inputMessage, data => { onInputReceived(data) })
+spacebroClient.on(settings.service.spacebro.client.in.inMedia.eventName, data => { onInputReceived(data) })
 
-spacebroClient.on('etna-stop', function (data) {
+spacebroClient.on(settings.service.spacebro.client.in.stopLastProcess.eventName, function (data) {
   console.log('kill')
   if (lastCommand) {
     lastCommand.kill('SIGINT')
