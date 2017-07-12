@@ -22,7 +22,7 @@
     "moment": "^2.18.1",
     "recursive-readdir": "^2.1.1",
     "replace-ext": "^1.0.0",
-    "spacebro-client": "^0.4.1",
+    "spacebro-client": "^0.4.2",
     "standard": "^10.0.2",
     "standard-settings": "1.1.7"
   },

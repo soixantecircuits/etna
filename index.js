@@ -50,23 +50,20 @@ app.listen(process.env.PORT || settings.server.port)
 
 console.log(`Serving on http://${settings.server.host}:${settings.server.port}`)
 
+/*
 var spacebroClient = new SpacebroClient(settings.service.spacebro.host, settings.service.spacebro.port, {
   channelName: settings.service.spacebro.channelName,
   client: settings.service.spacebro.client,
-  /* packers: [{ handler: function handler (args) {
-      return console.log(args.eventName, '=>', args.data)
-  } }],
-  unpackers: [{ handler: function handler (args) {
-      return console.log(args.eventName, '<=', args.data)
-  } }], */
   verbose: false,
   sendBack: false
 })
+*/
+var spacebroClient = new SpacebroClient()
+
 console.log(`Connecting to spacebro on ${settings.service.spacebro.host}:${settings.service.spacebro.port}`)
 
 spacebroClient.on('connect', () => {
-  console.log(`spacebro: ${settings.service.spacebro.clientName} connected to ${settings.service.spacebro.host}:${settings.service.spacebro.port}#${settings.service.spacebro.channelName}`)
-  spacebroClient.emit('addConnections', settings.service.spacebro.connection)
+  console.log(`spacebro: ${settings.service.spacebro.client.name} connected to ${settings.service.spacebro.host}:${settings.service.spacebro.port}#${settings.service.spacebro.channelName}`)
 })
 
 spacebroClient.on('newClient', (data) => {
