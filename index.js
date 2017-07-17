@@ -45,10 +45,9 @@ var lastCommand
 
 // init static server to serve generated files
 var app = express()
-app.use(express['static'](settings.folder.output))
+app.use(express.static(settings.folder.output))
 app.listen(process.env.PORT || settings.server.port)
 
-console.log(`Serving on http://${settings.server.host}:${settings.server.port}`)
 
 /*
 var spacebroClient = new SpacebroClient(settings.service.spacebro.host, settings.service.spacebro.port, {
