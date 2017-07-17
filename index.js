@@ -8,6 +8,7 @@ var exec = require('child_process').exec
 var moment = require('moment')
 const SpacebroClient = require('spacebro-client').SpacebroClient
 var standardSettings = require('standard-settings')
+var packageInfos = require('./package.json')
 var settings = standardSettings.getSettings()
 
 var recipes = require('./recipes')
@@ -46,6 +47,19 @@ var lastCommand
 // init static server to serve generated files
 var app = express()
 app.use(express.static(settings.folder.output))
+
+const stateServe = require('./src/state-serve')
+stateServe.init(app, {
+  app: {
+    name: packageInfos.name,
+    version: packageInfos.version,
+    site: {
+      url: packageInfos.repository.url,
+      name: packageInfos.name
+    }
+  }
+})
+
 app.listen(process.env.PORT || settings.server.port)
 
 
