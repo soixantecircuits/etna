@@ -65,11 +65,18 @@ var record = function (data, callback) {
     command
       .audioCodec(meta.audioCodec)
   }
+  if (meta.mjpgStream) {
+    command
+        .input(meta.mjpgStream)
+        .inputOptions(['-f mjpeg', '-r ' + inputFps])
+  } else {
+    command
+        .input(meta.webcam)
+        .inputOptions(['-f v4l2', '-framerate ' + inputFps, '-video_size ' + meta.size, '-t ' + duration])
+  }
   command
-      .input(mjpgStream)
-      .inputOptions(['-f mjpeg', '-r ' + inputFps])
       .videoCodec(videoCodec)
-      .outputOptions(['-pix_fmt yuv420p', '-b:v ' + bitrate, '-t ' + duration])
+      .outputOptions(['-pix_fmt yuv420p', '-b:v ' + bitrate])
       .fps(outputFps)
       .on('end', function () {
         console.log('file have been recorded succesfully')
