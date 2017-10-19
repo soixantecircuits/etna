@@ -51,6 +51,7 @@ var addThumbnail = function (data, callback) {
     }
     data.details.thumbnail = {
       path: data.outputTempPath,
+      file: filename,
       url: 'http://' + settings.server.host + ':' + settings.server.port + '/' + path.basename(data.outputTempPath)
     }
     data.outputTempPath = input
