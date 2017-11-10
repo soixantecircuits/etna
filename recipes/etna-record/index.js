@@ -68,7 +68,7 @@ var record = function (data, callback) {
   if (meta.mjpgStream) {
     command
         .input(meta.mjpgStream)
-        .inputOptions(['-f mjpeg', '-r ' + inputFps])
+        .inputOptions(['-f mjpeg', '-r ' + inputFps, '-t ' + duration])
   } else {
     command
         .input(meta.webcam)
