@@ -9,7 +9,7 @@ var thumbnail = function (data, callback) {
   var input = data.input
   var output = data.outputTempPath
   var name = path.basename(output, path.extname(path.basename(output)))
-  var filename = name + '.png'
+  var filename = name + '.jpg'
   data.outputTempPath = path.join(path.dirname(output), filename)
   data.output = path.join(path.dirname(data.output), filename)
   if (typeof meta.thumbnail !== 'object' || meta.thumbnail.position === undefined) {
@@ -43,7 +43,7 @@ var addThumbnail = function (data, callback) {
   var output = data.output
   var outputTempPath = data.outputTempPath
   var name = path.basename(outputTempPath, path.extname(path.basename(outputTempPath)))
-  var filename = name + '.png'
+  var filename = name + '.jpg'
   data.outputTempPath = path.join(settings.folder.output, filename)
   thumbnail(data, () => {
     if (data.details === undefined) {
