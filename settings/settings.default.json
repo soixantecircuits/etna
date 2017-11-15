@@ -40,7 +40,10 @@
   },
   "media": {
     "meta":{
-      "watermark":"assets/watermark.png"
+      "watermark":"assets/watermark.png",
+      "melt":{
+        "script": "example/edit.mlt"
+      }
     }
   },
   "pingpong":{
@@ -51,5 +54,8 @@
   "nuke":{
     "executable": "/path/to/nuke/executable",
     "script": "/path/to/script.nk"
+  },
+  "melt":{
+    "executable": "/usr/bin/melt"
   }
 }
