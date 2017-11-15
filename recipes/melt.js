@@ -18,7 +18,8 @@ var createMeltScript = function (data, callback) {
     var outputMeltFile = path.join(path.dirname(data.output), filename)
 
     fs.writeFile(outputMeltFile, xml, 'utf8', function (err) {
-      data.meta.melt.script = outputMeltFile
+      meta.melt.script = outputMeltFile
+      data.meta = meta
       if (callback) return callback(err, data)
     })
   })

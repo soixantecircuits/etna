@@ -37,4 +37,4 @@ setTimeout(function () {
     option: 'option'
   })
   console.log("stop")
-}, 18000)
+}, 5000)
