@@ -1,7 +1,11 @@
 'use strict'
 const spaceBro = require('spacebro-client')
 const path = require('path')
+const fs = require('fs')
 var settings = require('standard-settings').getSettings()
+const promisify = require('util').promisify
+
+const readFile = promisify(fs.readFile)
 
 spaceBro.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
   client: {
@@ -18,17 +22,21 @@ spaceBro.on(settings.service.spacebro.client.out.outVideo.eventName, function (d
 })
 
 spaceBro.on('connect', function () {
-  spaceBro.emit(settings.service.spacebro.client['in'].inMedia.eventName, {
-    path: 'example/pacman.mov',
-    output: path.join(settings.folder.output, 'edit.mp4'),
-    recipe: 'melt',
-    meta: {
-      melt: {
-        master: 'example/laplage.mp4'
+  readFile(settings.media.meta.melt.script, 'utf8').then((xml) => {
+    delete settings.media.meta.melt.script
+    spaceBro.emit(settings.service.spacebro.client['in'].inMedia.eventName, {
+      path: 'example/pacman.mov',
+      output: path.join(settings.folder.output, 'edit.mp4'),
+      recipe: 'melt',
+      meta: {
+        melt: {
+          scriptString: xml,
+          master: 'example/laplage.mp4'
+        }
       }
-    }
+    })
+    console.log('emit ')
   })
-  console.log('emit ')
 })
 
 setTimeout(function () {
