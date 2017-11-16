@@ -27,3 +27,8 @@ If you do so, `media.meta.script` will be ignored.
 
 A sample js script is here that runs with the demo assets:
 `test/test-melt-string.js`, and reflects all the details.
+
+## Debug
+
+If your result is not what you expected, it may be easier to debug in
+verbose mode, run etna with `--melt.verbose true`
