@@ -115,6 +115,12 @@ var setFilenames = async function (data) {
 
 var onInputReceived = async data => {
   console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
+  // save input in meta
+  if (data.meta === undefined) {
+    data.meta = {}
+  }
+  data.meta.etnaInput = JSON.parse(JSON.stringify(data))
+  // process
   data = await setFilenames(data)
   var recipe = data.recipe || settings.recipe
   var recipeFn = recipes.recipe(recipe)
@@ -126,10 +132,6 @@ var onInputReceived = async data => {
           console.log(err)
         } else {
           console.log('finished processing ' + data.output)
-          if (data.meta === undefined) {
-            data.meta = {}
-          }
-          data.meta.etnaInput = JSON.parse(JSON.stringify(data))
           data.path = data.output
           data.file = path.basename(data.output)
           data.url = `http://${settings.server.host}:${settings.server.port}/${path.basename(data.output)}`
