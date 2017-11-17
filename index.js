@@ -9,6 +9,7 @@ var moment = require('moment')
 const SpacebroClient = require('spacebro-client').SpacebroClient
 var standardSettings = require('standard-settings')
 var packageInfos = require('./package.json')
+var uniquefilename = require('uniquefilename')
 var settings = standardSettings.getSettings()
 
 var recipes = require('./recipes')
@@ -62,7 +63,6 @@ stateServe.init(app, {
 
 app.listen(process.env.PORT || settings.server.port)
 
-
 /*
 var spacebroClient = new SpacebroClient(settings.service.spacebro.host, settings.service.spacebro.port, {
   channelName: settings.service.spacebro.channelName,
@@ -95,21 +95,27 @@ var sendMedia = function (data) {
   console.log(data)
 }
 
-var onInputReceived = data => {
-  console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
+var setFilenames = async function (data) {
   if (data.path && data.input === undefined) {
     data.input = data.path
   }
   if (data.input) {
     data.output = data.output || path.join(settings.folder.output, path.basename(data.input))
-    data.outputTempPath = data.outputTempPath || path.join(settings.folder.tmp, path.basename(data.output))
   } else {
-    var date = moment()
-    var timestampName = date.format('YYYY-MM-DDTHH-mm-ss-SSS') + '.mp4'
-    data.output = data.output || path.join(settings.folder.output, path.basename(timestampName))
-    data.outputTempPath = data.outputTempPath || path.join(settings.folder.tmp, path.basename(data.output))
+    if (!data.output) {
+      var date = moment()
+      var timestampName = date.format('YYYY-MM-DDTHH-mm-ss-SSS') + '.mp4'
+      data.output = path.join(settings.folder.output, path.basename(timestampName))
+    }
   }
+  data.output = await uniquefilename.get(data.output)
+  data.outputTempPath = data.outputTempPath || path.join(settings.folder.tmp, path.basename(data.output))
+  return data
+}
 
+var onInputReceived = async data => {
+  console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
+  data = await setFilenames(data)
   var recipe = data.recipe || settings.recipe
   var recipeFn = recipes.recipe(recipe)
   lastCommand = recipeFn(data, function () {

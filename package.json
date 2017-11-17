@@ -24,7 +24,8 @@
     "replace-ext": "^1.0.0",
     "spacebro-client": "^0.4.2",
     "standard": "^10.0.2",
-    "standard-settings": "1.1.7"
+    "standard-settings": "1.1.7",
+    "uniquefilename": "^1.1.2"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

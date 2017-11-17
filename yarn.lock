@@ -232,6 +232,10 @@ bluebird@^3.1.1:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.0.tgz#791420d7f551eea2897453a8a77653f96606d67c"
 
+bluebird@^3.4.1:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.1.tgz#d9551f9de98f1fcda1e683d17ee91a0602ee2eb9"
+
 boom@2.x.x:
   version "2.10.1"
   resolved "https://registry.yarnpkg.com/boom/-/boom-2.10.1.tgz#39c8918ceff5799f83f9492a848f625add0c766f"
@@ -2787,6 +2791,12 @@ undefsafe@0.0.3:
 uniq@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/uniq/-/uniq-1.0.1.tgz#b31c5ae8254844a3a8281541ce2b04b865a734ff"
+
+uniquefilename@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/uniquefilename/-/uniquefilename-1.1.2.tgz#d608595e96666aecf5f4fbbab3def5e46c587908"
+  dependencies:
+    bluebird "^3.4.1"
 
 unpipe@~1.0.0:
   version "1.0.0"
