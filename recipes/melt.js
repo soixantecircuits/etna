@@ -18,6 +18,7 @@ var createMeltScript = async function (data, callback) {
       xml = meta.melt.scriptString
     } else {
       xml = await readFile(meta.melt.script, 'utf8')
+      meta.melt.scriptString = xml
     }
     // replace
     xml = xml.replace(/input.mp4/g, path.resolve(data.input))
