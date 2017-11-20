@@ -37,7 +37,8 @@ setTimeout(function () {
       webcam: '/dev/video0',
       size: '1920x1080',
       duration: 3,
-      mirror: true,
+      //mirror: true,
+      upsideDown: true,
       // audioDevice: 'default'
       audioDevice: false,
       inputFps: 25,
@@ -45,7 +46,7 @@ setTimeout(function () {
     }
   })
   console.log('emit ')
-}, 1000)
+}, 2200)
 
 setTimeout(function () {
   spaceBro.emit('etna-stop', {

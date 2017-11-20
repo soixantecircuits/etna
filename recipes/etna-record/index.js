@@ -42,7 +42,6 @@ var record = function (data, callback) {
   var output = data.outputTempPath
   var meta = standardSettings.getMeta(data)
   var audioDevice = meta.audioDevice
-  var mjpgStream = meta.mjpgStream
   var duration = meta.duration || 5
   var outputFps = meta.outputFps || 30
   var inputFps = meta.inputFps || 30
@@ -73,6 +72,9 @@ var record = function (data, callback) {
     command
         .input(meta.webcam)
         .inputOptions(['-f v4l2', '-framerate ' + inputFps, '-video_size ' + meta.size, '-t ' + duration])
+  }
+  if (meta.upsideDown) {
+    command.complexFilter('hflip,vflip')
   }
   command
       .videoCodec(videoCodec)
