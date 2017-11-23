@@ -35,7 +35,7 @@ setTimeout(function () {
       duration: 10,
       inputFps: 30,
       outputFps: 30,
-      //upsideDown: true,
+      // upsideDown: true,
       useVaapi: true
     }
   })

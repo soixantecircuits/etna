@@ -50,7 +50,7 @@ var record = function (data, callback) {
   var thread_queue_size = meta.thread_queue_size || '100024'
   var command = ffmpeg()
   var audioOption = meta.audioOption
-  var videoFilter = []
+  var complexFilter = ''
   if (audioDevice) {
     command
       .input(audioDevice)
@@ -74,17 +74,20 @@ var record = function (data, callback) {
         .input(meta.webcam)
         .inputOptions(['-f v4l2', '-framerate ' + inputFps, '-video_size ' + meta.size, '-t ' + duration])
   }
+  if (meta.upsideDown) {
+    complexFilter += 'hflip,vflip'
+  }
   if (meta.useVaapi) {
     command
       .inputOptions('-vaapi_device /dev/dri/renderD128')
-    videoFilter.push('format=nv12,hwupload')
+    if (complexFilter !== '') {
+      complexFilter += ','
+    }
+    complexFilter += 'format=nv12,hwupload'
     videoCodec = 'h264_vaapi'
   }
-  if (meta.upsideDown) {
-    videoFilter.push('hflip,vflip')
-  }
-  if (videoFilter.length > 0) {
-    command.videoFilter(videoFilter)
+  if (complexFilter !== '') {
+    command.complexFilter(complexFilter)
   }
   command
       .videoCodec(videoCodec)
