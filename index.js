@@ -114,42 +114,46 @@ var setFilenames = async function (data) {
 }
 
 var onInputReceived = async data => {
-  console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
-  // save input in meta
-  if (data.meta === undefined) {
-    data.meta = {}
-  }
-  data.meta.etnaInput = JSON.parse(JSON.stringify(data))
-  // process
-  data = await setFilenames(data)
-  var recipe = data.recipe || settings.recipe
-  var recipeFn = recipes.recipe(recipe)
-  lastCommand = recipeFn(data, function () {
-    // fs.rename(data.outputTempPath, data.output, function (err) {
-    if (recipe !== 'addThumbnail') {
-      exec('mv ' + data.outputTempPath + ' ' + data.output, function (err) {
-        if (err) {
-          console.log(err)
-        } else {
-          console.log('finished processing ' + data.output)
-          data.path = data.output
-          data.file = path.basename(data.output)
-          data.url = `http://${settings.server.host}:${settings.server.port}/${path.basename(data.output)}`
-          var meta = standardSettings.getMeta(data)
-          if (meta.thumbnail) {
-            data.input = data.output
-            recipes.recipe('addThumbnail')(data, () => {
-              sendMedia(data)
-            })
-          } else {
-            sendMedia(data)
-          }
-        }
-      })
-    } else {
-      sendMedia(data)
+  try {
+    console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
+    // save input in meta
+    if (data.meta === undefined) {
+      data.meta = {}
     }
-  })
+    data.meta.etnaInput = JSON.parse(JSON.stringify(data))
+    // process
+    data = await setFilenames(data)
+    var recipe = data.recipe || settings.recipe
+    var recipeFn = recipes.recipe(recipe)
+    lastCommand = recipeFn(data, function () {
+      // fs.rename(data.outputTempPath, data.output, function (err) {
+      if (recipe !== 'addThumbnail') {
+        exec('mv ' + data.outputTempPath + ' ' + data.output, function (err) {
+          if (err) {
+            console.log(err)
+          } else {
+            console.log('finished processing ' + data.output)
+            data.path = data.output
+            data.file = path.basename(data.output)
+            data.url = `http://${settings.server.host}:${settings.server.port}/${path.basename(data.output)}`
+            var meta = standardSettings.getMeta(data)
+            if (meta.thumbnail) {
+              data.input = data.output
+              recipes.recipe('addThumbnail')(data, () => {
+                sendMedia(data)
+              })
+            } else {
+              sendMedia(data)
+            }
+          }
+        })
+      } else {
+        sendMedia(data)
+      }
+    })
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 // TODO: document 'new-media' data.recipe, data.input, data.output

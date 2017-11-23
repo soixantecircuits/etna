@@ -43,7 +43,8 @@
       "watermark":"assets/watermark.png",
       "melt":{
         "script": "example/edit.mlt"
-      }
+      },
+      "useVaapi": false
     }
   },
   "pingpong":{
