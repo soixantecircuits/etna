@@ -34,6 +34,7 @@
     }
   },
   "recipe": "watermark",
+  "minDuration": 0,
   "folder":{
     "tmp": "/tmp/etna/tmp",
     "output": "/tmp/etna"

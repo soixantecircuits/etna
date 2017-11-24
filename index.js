@@ -95,6 +95,18 @@ var sendMedia = function (data) {
   console.log(data)
 }
 
+var getDuration = path => {
+  return new Promise(resolve => {
+    ffmpeg.ffprobe(path, function (err, metadata) {
+      if (err) {
+        resolve(0)
+      } else {
+        resolve(metadata.format.duration)
+      }
+    })
+  })
+}
+
 var setFilenames = async function (data) {
   if (data.path && data.input === undefined) {
     data.input = data.path
@@ -116,6 +128,12 @@ var setFilenames = async function (data) {
 var onInputReceived = async data => {
   try {
     console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
+    if (settings.minDuration) {
+      let duration = await getDuration(data.path)
+      if (duration < settings.minDuration) {
+        throw Error('File too small to be processed: ' + duration + ' seconds')
+      }
+    }
     // save input in meta
     if (data.meta === undefined) {
       data.meta = {}
