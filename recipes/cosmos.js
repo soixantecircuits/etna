@@ -2,7 +2,7 @@
 var ffmpeg = require('fluent-ffmpeg')
 var path = require('path')
 // var settings = require('./../config.json')
-var exec = require('child_process').exec
+// var exec = require('child_process').exec
 var standardSettings = require('standard-settings')
 var settings = standardSettings.getSettings()
 
@@ -132,12 +132,12 @@ var pingpongRaw = function (data, callback) {
 
 module.exports = {
   albumSaved: function (data, callback) {
-    data.input = data.src
+    data.input = data.path
     var ext = '.mp4'
     if (settings.pingpong && settings.pingpong.gif) {
       ext = '.gif'
     }
-    var name = path.relative(path.dirname(data.src), data.src)
+    var name = path.relative(path.dirname(data.input), data.input)
     var filename = name + ext
     data.output = path.join(settings.folder.output, filename)
     data.outputTempPath = path.join(settings.folder.tmp, filename)
@@ -145,28 +145,6 @@ module.exports = {
     data.path = data.output
     data.file = filename
     data.type = 'video/mp4'
-
-    // thumbnail
-    var thumbnailFilename = '0001.jpg'
-    var thumbnailDestFilename = name + '-' + '0001.jpg'
-    var thumbnailPath = path.join(data.input, thumbnailFilename)
-    var thumbnailDestPath = path.join(settings.folder.output, thumbnailDestFilename)
-    exec('cp ' + thumbnailPath + ' ' + thumbnailDestPath)
-    // var thumbnailStaticPath = 'http://' + settings.server.host + ':' + settings.server.port + '/' + thumbnailDestFilename
-    var details = {
-      width: 0,
-      height: 0,
-      thumbnail: {
-        file: thumbnailDestFilename,
-        width: 0,
-        height: 0,
-        type: 'image/jpg',
-        // source: thumbnailStaticPath
-        source: thumbnailDestPath
-      }
-    }
-    data.details = details
-    console.log(data)
 
     if (data.raw) {
       pingpongRaw(data, callback)

@@ -38,7 +38,7 @@ setTimeout(function () {
       size: '1920x1080',
       duration: 3,
       //mirror: true,
-      upsideDown: true,
+      upsideDown: false,
       // audioDevice: 'default'
       audioDevice: false,
       inputFps: 25,
