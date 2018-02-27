@@ -37,6 +37,7 @@
   "minDuration": 0,
   "folder":{
     "tmp": "/tmp/etna/tmp",
+    "tmpDownload": "/tmp/etna/tmp-download",
     "output": "/tmp/etna"
   },
   "media": {

@@ -10,6 +10,10 @@ const SpacebroClient = require('spacebro-client').SpacebroClient
 var standardSettings = require('standard-settings')
 var packageInfos = require('./package.json')
 var uniquefilename = require('uniquefilename')
+const download = require('download')
+const {promisify} = require('util')
+const access = promisify(fs.access)
+
 var settings = standardSettings.getSettings()
 
 var recipes = require('./recipes')
@@ -88,6 +92,9 @@ spacebroClient.on('disconnect', () => {
 })
 
 var sendMedia = function (data) {
+  if (data.input && data.input.includes(settings.folder.tmpDownload)) {
+    fs.unlink(data.input, () => {})
+  }
   delete data.input
   delete data.output
   delete data.outputTempPath
@@ -105,6 +112,30 @@ var getDuration = path => {
       }
     })
   })
+}
+
+var downloadFile = async function (data) {
+  if (data.url) {
+    let exists = false
+    if (data.path) {
+      try {
+        await access(data.path)
+        exists = true
+      } catch (e) {
+        exists = false
+      }
+    }
+    if (!exists) {
+      try {
+        console.log('downloading ' + data.url)
+        await download(data.url, settings.folder.tmpDownload, {filename: path.basename(data.url)})
+        data.path = path.join(settings.folder.tmpDownload, path.basename(data.url))
+      } catch (e) {
+        console.log(e)
+      }
+    }
+  }
+  return data
 }
 
 var setFilenames = async function (data) {
@@ -139,6 +170,8 @@ var onInputReceived = async data => {
       data.meta = {}
     }
     data.meta.etnaInput = JSON.parse(JSON.stringify(data))
+    // download
+    data = await downloadFile(data)
     // process
     data = await setFilenames(data)
     var recipe = data.recipe || settings.recipe
