@@ -21,7 +21,7 @@ var createMeltScript = async function (data, callback) {
       meta.melt.scriptString = xml
     }
     // replace
-    xml = xml.replace(/input.mp4/g, path.resolve(data.input))
+    xml = xml.replace(/input\.(mp4|jpg)/g, path.resolve(data.input))
     .replace(/master.mp4/g, path.resolve(meta.melt.master))
     // write
     var name = path.basename(data.output, path.extname(path.basename(data.output)))
