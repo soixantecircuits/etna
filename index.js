@@ -139,7 +139,7 @@ var downloadFile = async function (data) {
 }
 
 var setFilenames = async function (data) {
-  if (data.path && data.input === undefined) {
+  if (data.path && (typeof data.input !== "string")) {
     data.input = data.path
   }
   if (data.input) {

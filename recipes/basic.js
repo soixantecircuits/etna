@@ -9,7 +9,8 @@ var changeExtension = function (data, ext) {
   data.outputTempPath = replaceExt(data.outputTempPath, ext)
   data.path = data.output
   data.file = replaceExt(data.file, ext)
-  data.type = 'video/' + ext
+  data.filename = replaceExt(data.filename, ext)
+  data.type = 'video/' + ext.substring(1)
 }
 
 module.exports = {
