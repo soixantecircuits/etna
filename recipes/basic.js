@@ -33,6 +33,8 @@ module.exports = {
     if (typeof watermark !== 'object') {
       watermark = {path: watermark}
     }
+    var crop = meta.output
+    var speed = meta.speed
     var isInputImage = false
 
     mediaHelper.isImage(data.input)
@@ -49,16 +51,16 @@ module.exports = {
       })
       .then((isImage) => {
         if (isImage) {
-          watermarkInputOption = '-loop 1'
+          // watermarkInputOption = '-loop 1' // not needed in latest ffmpeg
         }
         isImage = true
+        withAudio = !(watermark.keepAudio === false)
         if (watermark.end) {
           var start = watermark.start || 0
           var end = watermark.end || start + 2
           var fadeDuration = watermark.fadeDuration || 0.2
           start = Math.max(start, 0)
           end = Math.max(end, 0)
-          withAudio = !(watermark.keepAudio === false)
 
           x = watermark.x || 0
           y = watermark.y || 0
@@ -128,10 +130,31 @@ module.exports = {
               outputs: 'output'
             })
         } else {
+          var videoInput = '0:v'
+          if (speed) {
+            var options = 1/speed + '*PTS'
+            complexFilter.push({
+              filter: 'setpts',
+              options: [options],
+              inputs: [videoInput],
+              outputs: 'speeded'
+            })
+            videoInput = 'speeded'
+          }
+          if (crop) {
+            var options = crop.width + ':' + crop.height + ':' + '(in_w-' + crop.width + ')/2:(in_h-' + crop.height + ')/2'
+            complexFilter.push({
+              filter: 'crop',
+              options: [options],
+              inputs: [videoInput],
+              outputs: 'cropped'
+            })
+            videoInput = 'cropped'
+          }
           complexFilter.push({
             filter: 'overlay',
             options: ['format=rgb'],
-            inputs: ['0:v', '1:0'],
+            inputs: [videoInput, '1:0'],
             outputs: 'output'
           })
         }
