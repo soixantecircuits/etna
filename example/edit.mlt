@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mlt LC_NUMERIC="fr_FR.UTF-8" version="6.4.1" title="Shotcut version 17.10.27" producer="main bin">
+<mlt LC_NUMERIC="fr_FR.UTF-8" version="6.10.0" title="Shotcut version 18.03.23" producer="main bin">
   <profile description="automatic" width="472" height="360" progressive="1" sample_aspect_num="1" sample_aspect_den="1" display_aspect_num="468" display_aspect_den="360" frame_rate_num="30000" frame_rate_den="1001" colorspace="601"/>
   <playlist id="main bin">
     <property name="xml_retain">1</property>
@@ -29,7 +29,6 @@
     <property name="ignore_points">0</property>
     <property name="shotcut:caption">master.mp4</property>
     <property name="shotcut:detail">master.mp4</property>
-    <property name="shotcut:comment"></property>
     <property name="global_feed">1</property>
     <property name="xml">was here</property>
   </producer>
@@ -52,7 +51,44 @@
     <property name="ignore_points">0</property>
     <property name="shotcut:caption">input.mp4</property>
     <property name="shotcut:detail">input.mp4</property>
+    <property name="global_feed">1</property>
+    <property name="xml">was here</property>
+  </producer>
+  <producer id="producer2" title="Anonymous Submission" in="00:00:00,000" out="00:00:42,543">
+    <property name="length">00:00:42;17</property>
+    <property name="eof">pause</property>
+    <property name="resource">details.1.mp4</property>
+    <property name="audio_index">1</property>
+    <property name="video_index">0</property>
+    <property name="mute_on_pause">0</property>
+    <property name="mlt_service">avformat-novalidate</property>
+    <property name="seekable">1</property>
+    <property name="aspect_ratio">1</property>
+    <property name="shotcut:hash">03798b1ff47beef30c541ce18cc664ee</property>
+    <property name="ignore_points">0</property>
+    <property name="shotcut:caption">details.1.mp4</property>
+    <property name="shotcut:detail">details.1.mp4</property>
     <property name="shotcut:comment"></property>
+    <property name="shotcut:skipConvert">1</property>
+    <property name="global_feed">1</property>
+    <property name="xml">was here</property>
+  </producer>
+  <producer id="producer3" title="Anonymous Submission" in="00:00:00,000" out="00:00:42,543">
+    <property name="length">00:00:42;17</property>
+    <property name="eof">pause</property>
+    <property name="resource">details.2.mp4</property>
+    <property name="audio_index">1</property>
+    <property name="video_index">0</property>
+    <property name="mute_on_pause">0</property>
+    <property name="mlt_service">avformat-novalidate</property>
+    <property name="seekable">1</property>
+    <property name="aspect_ratio">1</property>
+    <property name="shotcut:hash">03798b1ff47beef30c541ce18cc664ee</property>
+    <property name="ignore_points">0</property>
+    <property name="shotcut:caption">details.2.mp4</property>
+    <property name="shotcut:detail">details.2.mp4</property>
+    <property name="shotcut:comment"></property>
+    <property name="shotcut:skipConvert">1</property>
     <property name="global_feed">1</property>
     <property name="xml">was here</property>
   </producer>
@@ -61,8 +97,12 @@
     <property name="shotcut:name">V2</property>
     <blank length="00:00:02,069"/>
     <entry producer="producer1" in="00:00:00,000" out="00:00:02,336"/>
+    <blank length="00:00:04,905"/>
+    <entry producer="producer2" in="00:00:15,215" out="00:00:20,287"/>
+    <blank length="00:00:03,036"/>
+    <entry producer="producer3" in="00:00:23,957" out="00:00:27,327"/>
   </playlist>
-  <tractor id="tractor0" title="Shotcut version 17.10.27" global_feed="1" in="00:00:00,000" out="00:01:12,312">
+  <tractor id="tractor0" title="Shotcut version 18.03.23" global_feed="1" in="00:00:00,000" out="00:01:12,312">
     <property name="shotcut">1</property>
     <track producer="background"/>
     <track producer="playlist0"/>

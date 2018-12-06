@@ -23,6 +23,15 @@ var createMeltScript = async function (data, callback) {
     // replace
     xml = xml.replace(/input\.(mp4|jpg)/g, path.resolve(data.input))
     .replace(/master.mp4/g, path.resolve(meta.melt.master))
+    if (data.details) {
+      for (let i = 0; i < Object.keys(data.details).length; i++) {
+        let key = Object.keys(data.details)[i]
+        let name = 'details.' + key
+        let regex = new RegExp(name + '\.(mp4|jpg)', 'g')
+        xml = xml.replace(regex, path.resolve(data.details[key].path))
+      }
+    }
+
     // write
     var name = path.basename(data.output, path.extname(path.basename(data.output)))
     var filename = name + '.mlt'
