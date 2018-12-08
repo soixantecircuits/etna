@@ -13,6 +13,7 @@ var uniquefilename = require('uniquefilename')
 const download = require('download')
 const {promisify} = require('util')
 const access = promisify(fs.access)
+const assignment = require('assignment')
 
 var settings = standardSettings.getSettings()
 
@@ -165,6 +166,7 @@ var onInputReceived = async data => {
         throw Error('File too small to be processed: ' + duration + ' seconds')
       }
     }
+    data = assignment(data, JSON.parse(JSON.stringify(settings.media)))
     // save input in meta
     if (data.meta === undefined) {
       data.meta = {}
@@ -184,6 +186,7 @@ var onInputReceived = async data => {
             console.log(err)
           } else {
             console.log('finished processing ' + data.output)
+            data.type = 'video/' + path.extname(data.output).substring(1)
             data.path = data.output
             data.file = path.basename(data.output)
             data.url = `http://${settings.server.host}:${settings.server.port}/${path.basename(data.output)}`
