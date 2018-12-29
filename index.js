@@ -139,7 +139,7 @@ var downloadFile = async function (data) {
 }
 
 var setFilenames = async function (data) {
-  if (data.path && (typeof data.input !== "string")) {
+  if (data.path && (typeof data.input !== 'string')) {
     data.input = data.path
   }
   if (data.input) {
@@ -172,6 +172,9 @@ var onInputReceived = async data => {
     data.meta.etnaInput = JSON.parse(JSON.stringify(data))
     // download
     data = await downloadFile(data)
+    for (var key in data.details) {
+      await downloadFile(data.details[key])
+    }
     // process
     data = await setFilenames(data)
     var recipe = data.recipe || settings.recipe
