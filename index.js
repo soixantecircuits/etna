@@ -166,7 +166,8 @@ var onInputReceived = async data => {
         throw Error('File too small to be processed: ' + duration + ' seconds')
       }
     }
-    data = assignment(data, JSON.parse(JSON.stringify(settings.media)))
+    // data = assignment(data, JSON.parse(JSON.stringify(settings.media)))
+    data = assignment(JSON.parse(JSON.stringify(settings.media)), data)
     // save input in meta
     if (data.meta === undefined) {
       data.meta = {}
