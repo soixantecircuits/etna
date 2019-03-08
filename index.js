@@ -14,6 +14,8 @@ const download = require('download')
 const {promisify} = require('util')
 const access = promisify(fs.access)
 const assignment = require('assignment')
+const deepIterator = require('deep-iterator').default
+const validUrl = require('valid-url')
 
 var settings = standardSettings.getSettings()
 
@@ -139,6 +141,19 @@ var downloadFile = async function (data) {
   return data
 }
 
+var downloadFilesInMeta = async function (data) {
+  let values = data.meta
+  for (let {parent, key, value} of deepIterator(values)) {
+    if (value && typeof value === 'string' && validUrl.isUri(value)) {
+      console.log('downloading ' + value)
+      await download(value, settings.folder.tmpDownload, {filename: path.basename(value)})
+      let filepath = path.join(settings.folder.tmpDownload, path.basename(value))
+      parent[key] = filepath
+    }
+  }
+  return data
+}
+
 var setFilenames = async function (data) {
   if (data.path && (typeof data.input !== 'string')) {
     data.input = data.path
@@ -172,14 +187,16 @@ var onInputReceived = async data => {
     if (data.meta === undefined) {
       data.meta = {}
     }
-    data.meta.etnaInput = JSON.parse(JSON.stringify(data))
+    let etnaInput = JSON.parse(JSON.stringify(data))
     // download
     data = await downloadFile(data)
     for (var key in data.details) {
       await downloadFile(data.details[key])
     }
+    data = await downloadFilesInMeta(data)
     // process
     data = await setFilenames(data)
+    data.meta.etnaInput = etnaInput
     var recipe = data.recipe || settings.recipe
     var recipeFn = recipes.recipe(recipe)
     lastCommand = recipeFn(data, function () {

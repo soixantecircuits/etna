@@ -50,9 +50,9 @@
     }
   },
   "pingpong":{
-    "gif": true,
+    "gif": false,
     "inputFramerate": 13,
-    "loops": 1
+    "loops": 2
   },
   "nuke":{
     "executable": "/path/to/nuke/executable",

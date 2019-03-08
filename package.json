@@ -14,6 +14,7 @@
   "dependencies": {
     "assignment": "^2.2.1",
     "asyncawait": "^1.0.6",
+    "deep-iterator": "^1.1.0",
     "download": "^6.2.5",
     "express": "^4.15.3",
     "fluent-ffmpeg": "^2.0.1",
@@ -26,7 +27,8 @@
     "spacebro-client": "^0.4.2",
     "standard": "^10.0.2",
     "standard-settings": "1.1.10",
-    "uniquefilename": "^1.1.2"
+    "uniquefilename": "^1.1.2",
+    "valid-url": "^1.0.9"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

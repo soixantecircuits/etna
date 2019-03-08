@@ -17,7 +17,10 @@ module.exports = {
   watermark: function (data, callback) {
     var meta = standardSettings.getMeta(data)
     var watermark = meta.watermark
-    if (watermark === undefined || watermark.path === undefined) {
+    if (typeof watermark !== 'object') {
+      watermark = {path: watermark}
+    }
+    if (watermark.path === undefined) {
       data.outputTempPath = data.input
       if (callback) return callback(null)
       return
@@ -30,9 +33,6 @@ module.exports = {
     var x = 0
     var y = 0
     var withAudio = true
-    if (typeof watermark !== 'object') {
-      watermark = {path: watermark}
-    }
     var crop = meta.output
     var speed = meta.speed
     var isInputImage = false
