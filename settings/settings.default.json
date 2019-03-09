@@ -51,7 +51,7 @@
   },
   "pingpong":{
     "gif": false,
-    "inputFramerate": 13,
+    "inputFramerate": 30,
     "loops": 2
   },
   "nuke":{
