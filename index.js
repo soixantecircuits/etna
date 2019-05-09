@@ -93,7 +93,7 @@ spacebroClient.on('disconnect', () => {
 })
 
 var sendMedia = function (data) {
-  if (data.input && data.input.includes(settings.folder.tmpDownload)) {
+  if (data.input && data.input.includes && data.input.includes(settings.folder.tmpDownload)) {
     fs.unlink(data.input, () => {})
   }
   delete data.input
@@ -157,6 +157,15 @@ var setFilenames = async function (data) {
   return data
 }
 
+var isImage = data => {
+  if (data.filename) {
+    if (data.filename.match(/png$/)) {
+      return true
+    }
+  }
+  return false
+}
+
 var onInputReceived = async data => {
   try {
     console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
@@ -165,6 +174,11 @@ var onInputReceived = async data => {
       if (duration < settings.minDuration) {
         throw Error('File too small to be processed: ' + duration + ' seconds')
       }
+    }
+    if (isImage(data)) {
+      console.log('Image, pass through, send media without changes')
+      sendMedia(data)
+      return
     }
     // data = assignment(data, JSON.parse(JSON.stringify(settings.media)))
     data = assignment(JSON.parse(JSON.stringify(settings.media)), data)
