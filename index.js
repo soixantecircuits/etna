@@ -13,6 +13,9 @@ var uniquefilename = require('uniquefilename')
 const download = require('download')
 const {promisify} = require('util')
 const access = promisify(fs.access)
+const assignment = require('assignment')
+const deepIterator = require('deep-iterator').default
+const validUrl = require('valid-url')
 
 var settings = standardSettings.getSettings()
 
@@ -92,7 +95,7 @@ spacebroClient.on('disconnect', () => {
 })
 
 var sendMedia = function (data) {
-  if (data.input && data.input.includes(settings.folder.tmpDownload)) {
+  if (data.input && data.input.includes && data.input.includes(settings.folder.tmpDownload)) {
     fs.unlink(data.input, () => {})
   }
   delete data.input
@@ -138,8 +141,21 @@ var downloadFile = async function (data) {
   return data
 }
 
+var downloadFilesInMeta = async function (data) {
+  let values = data.meta
+  for (let {parent, key, value} of deepIterator(values)) {
+    if (value && typeof value === 'string' && validUrl.isUri(value)) {
+      console.log('downloading ' + value)
+      await download(value, settings.folder.tmpDownload, {filename: path.basename(value)})
+      let filepath = path.join(settings.folder.tmpDownload, path.basename(value))
+      parent[key] = filepath
+    }
+  }
+  return data
+}
+
 var setFilenames = async function (data) {
-  if (data.path && data.input === undefined) {
+  if (data.path && (typeof data.input !== 'string')) {
     data.input = data.path
   }
   if (data.input) {
@@ -157,6 +173,15 @@ var setFilenames = async function (data) {
   return data
 }
 
+var isImage = data => {
+  if (data.filename) {
+    if (data.filename.match(/png$/)) {
+      return true
+    }
+  }
+  return false
+}
+
 var onInputReceived = async data => {
   try {
     console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
@@ -166,16 +191,28 @@ var onInputReceived = async data => {
         throw Error('File too small to be processed: ' + duration + ' seconds')
       }
     }
+    if (isImage(data)) {
+      console.log('Image, pass through, send media without changes')
+      sendMedia(data)
+      return
+    }
+    // data = assignment(data, JSON.parse(JSON.stringify(settings.media)))
+    data = assignment(JSON.parse(JSON.stringify(settings.media)), data)
     // save input in meta
     if (data.meta === undefined) {
       data.meta = {}
     }
-    data.meta.etnaInput = JSON.parse(JSON.stringify(data))
+    let etnaInput = JSON.parse(JSON.stringify(data))
     // download
     delete data.input
     data = await downloadFile(data)
+    for (var key in data.details) {
+      await downloadFile(data.details[key])
+    }
+    data = await downloadFilesInMeta(data)
     // process
     data = await setFilenames(data)
+    data.meta.etnaInput = etnaInput
     var recipe = data.recipe || settings.recipe
     var recipeFn = recipes.recipe(recipe)
     lastCommand = recipeFn(data, function () {
@@ -186,6 +223,7 @@ var onInputReceived = async data => {
             console.log(err)
           } else {
             console.log('finished processing ' + data.output)
+            data.type = 'video/' + path.extname(data.output).substring(1)
             data.path = data.output
             data.file = path.basename(data.output)
             data.url = `http://${settings.server.host}:${settings.server.port}/${path.basename(data.output)}`

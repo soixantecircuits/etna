@@ -18,11 +18,21 @@ var createMeltScript = async function (data, callback) {
       xml = meta.melt.scriptString
     } else {
       xml = await readFile(meta.melt.script, 'utf8')
-      meta.melt.scriptString = xml
     }
     // replace
-    xml = xml.replace(/input\.(mp4|jpg)/g, path.resolve(data.input))
-    .replace(/master.mp4/g, path.resolve(meta.melt.master))
+    if (data.input) {
+      xml = xml.replace(/input\.(mp4|jpg)/g, path.resolve(data.input))
+    }
+    xml = xml.replace(/master.mp4/g, path.resolve(meta.melt.master))
+    if (data.details) {
+      for (let i = 0; i < Object.keys(data.details).length; i++) {
+        let key = Object.keys(data.details)[i]
+        let name = 'details.' + key
+        let regex = new RegExp(name + '\.(mp4|jpg)', 'g')
+        xml = xml.replace(regex, path.resolve(data.details[key].path))
+      }
+    }
+
     // write
     var name = path.basename(data.output, path.extname(path.basename(data.output)))
     var filename = name + '.mlt'
@@ -30,6 +40,7 @@ var createMeltScript = async function (data, callback) {
     await writeFile(outputMeltFile, xml, 'utf8')
     // return
     meta.melt.script = outputMeltFile
+    meta.melt.scriptString = xml
     data.meta = JSON.parse(JSON.stringify(meta))
     if (callback) return callback(null, data)
   } catch (err) {

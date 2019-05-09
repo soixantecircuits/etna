@@ -3,38 +3,24 @@ var ffmpeg = require('fluent-ffmpeg')
 var standardSettings = require('standard-settings')
 var mediaHelper = require('media-helper')
 var replaceExt = require('replace-ext')
-var exec = require('child_process').exec
-var path = require('path')
-var settings = standardSettings.getSettings()
 
-var dummyThumbnail = function (data) {
-    // thumbnail
-  var thumbnailPath = data.input
-  var thumbnailDestFilename = path.basename(thumbnailPath)
-  var thumbnailDestPath = path.join(settings.folder.output, thumbnailDestFilename)
-  exec('cp ' + thumbnailPath + ' ' + thumbnailDestPath)
-  var thumbnailStaticPath = 'http://' + settings.server.host + ':' + settings.server.port + '/' + thumbnailDestFilename
-  var details = {
-    width: 0,
-    height: 0,
-    thumbnail: {
-      file: thumbnailDestFilename,
-      width: 0,
-      height: 0,
-      type: 'image/jpg',
-      url: thumbnailStaticPath,
-      path: thumbnailDestPath,
-      source: thumbnailDestPath // legacy
-    }
-  }
-  data.details = details
+var changeExtension = function (data, ext) {
+  data.output = replaceExt(data.output, ext)
+  data.outputTempPath = replaceExt(data.outputTempPath, ext)
+  data.path = data.output
+  data.file = replaceExt(data.file, ext)
+  data.filename = replaceExt(data.filename, ext)
+  data.type = 'video/' + ext.substring(1)
 }
 
 module.exports = {
   watermark: function (data, callback) {
     var meta = standardSettings.getMeta(data)
     var watermark = meta.watermark
-    if (watermark === undefined || watermark.path === undefined) {
+    if (typeof watermark !== 'object') {
+      watermark = {path: watermark}
+    }
+    if (watermark.path === undefined) {
       data.outputTempPath = data.input
       if (callback) return callback(null)
       return
@@ -47,9 +33,8 @@ module.exports = {
     var x = 0
     var y = 0
     var withAudio = true
-    if (typeof watermark !== 'object') {
-      watermark = { path: watermark}
-    }
+    var crop = meta.output
+    var speed = meta.speed
     var isInputImage = false
 
     mediaHelper.isImage(data.input)
@@ -66,16 +51,16 @@ module.exports = {
       })
       .then((isImage) => {
         if (isImage) {
-          watermarkInputOption = '-loop 1'
+          // watermarkInputOption = '-loop 1' // not needed in latest ffmpeg
         }
         isImage = true
+        withAudio = !(watermark.keepAudio === false)
         if (watermark.end) {
           var start = watermark.start || 0
           var end = watermark.end || start + 2
           var fadeDuration = watermark.fadeDuration || 0.2
           start = Math.max(start, 0)
           end = Math.max(end, 0)
-          withAudio = !(watermark.keepAudio === false)
 
           x = watermark.x || 0
           y = watermark.y || 0
@@ -145,10 +130,31 @@ module.exports = {
               outputs: 'output'
             })
         } else {
+          var videoInput = '0:v'
+          if (speed) {
+            var options = 1/speed + '*PTS'
+            complexFilter.push({
+              filter: 'setpts',
+              options: [options],
+              inputs: [videoInput],
+              outputs: 'speeded'
+            })
+            videoInput = 'speeded'
+          }
+          if (crop) {
+            var options = crop.width + ':' + crop.height + ':' + '(in_w-' + crop.width + ')/2:(in_h-' + crop.height + ')/2'
+            complexFilter.push({
+              filter: 'crop',
+              options: [options],
+              inputs: [videoInput],
+              outputs: 'cropped'
+            })
+            videoInput = 'cropped'
+          }
           complexFilter.push({
             filter: 'overlay',
             options: ['format=rgb'],
-            inputs: ['0:v', '1:0'],
+            inputs: [videoInput, '1:0'],
             outputs: 'output'
           })
         }
@@ -191,6 +197,43 @@ module.exports = {
       .catch((err) => {
         console.log(err)
       })
+  },
+  convert: function (data, callback) {
+    changeExtension(data, '.mp4')
+    var input = data.input
+    var output = data.outputTempPath
+    var bitrate = 6000
+    var videoCodec = 'libx264'
+    var outputOptions = [
+      '-movflags +faststart',
+      '-threads 0',
+      '-pix_fmt yuv420p',
+        // '-gifflags -transdiff -y',
+        // '-vcodec ' + bitrate + 'k',
+      '-maxrate ' + bitrate + 'k',
+      '-bufsize ' + 2 * bitrate + 'k'
+    ]
+    ffmpeg(input)
+      // .audioCodec('libmp3lame')
+      .videoCodec(videoCodec)
+      .outputOptions(outputOptions)
+      .fps(25)
+      .on('start', function (commandLine) {
+        console.log('Spawned Ffmpeg with command: ' + commandLine)
+      })
+      .on('error', function (err) {
+        console.log('An error occurred while merging: ', err)
+      })
+      .on('progress', function (progress) {
+        var date = Date()
+        console.log(date.substr(16, date.length) + ' - Processing generation')
+      })
+      .on('end', function () {
+        console.log('ffmpeg - finished to layer images')
+        if (callback) return callback(null)
+      })
+      .output(output)
+      .run()
   },
   crop: function (data, callback) {
     var input = data.input
