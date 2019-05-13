@@ -213,7 +213,29 @@ module.exports = {
       '-maxrate ' + bitrate + 'k',
       '-bufsize ' + 2 * bitrate + 'k'
     ]
-    ffmpeg(input)
+    var meta = standardSettings.getMeta(data)
+    var watermark = meta.watermark
+    let proc = ffmpeg(input)
+
+    if (watermark) {
+      proc.input(watermark)
+      .complexFilter([
+        //[1:0][0:0]scale2ref[scaled][ref];[ref][scaled]overlay=format=rgb[output]
+        {
+          filter: 'scale2ref',
+          inputs: ['1:0', '0:0'],
+          outputs: '[scaled][ref]'
+        },
+        {
+          filter: 'overlay',
+          options: 'format=rgb',
+          inputs: ['ref', 'scaled'],
+          outputs: 'output'
+        }
+      ], 'output')
+      // .inputOption('-loop 1')
+    }
+    proc
       // .audioCodec('libmp3lame')
       .videoCodec(videoCodec)
       .outputOptions(outputOptions)
