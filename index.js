@@ -96,7 +96,7 @@ spacebroClient.on('disconnect', () => {
 })
 
 var sendMedia = function (data) {
-  if (data.input && data.input.includes(settings.folder.tmpDownload)) {
+  if (data.input && data.input.includes && data.input.includes(settings.folder.tmpDownload)) {
     fs.unlink(data.input, () => {})
   }
   delete data.input
@@ -167,7 +167,7 @@ var downloadFile = async function (data) {
 var downloadFilesInMeta = async function (data) {
   let values = data.meta
   for (let {parent, key, value} of deepIterator(values)) {
-    if (value && typeof value === 'string' && validUrl.isUri(value)) {
+    if (key !== 'mjpgStream' && value && typeof value === 'string' && validUrl.isUri(value)) {
       let filepath = await downloadWithCache(value)
       parent[key] = filepath
     }
@@ -181,6 +181,7 @@ var setFilenames = async function (data) {
   }
   if (data.input) {
     data.output = data.output || path.join(settings.folder.output, path.basename(data.input))
+    data.output += '.mp4'
   } else {
     if (!data.output) {
       var date = moment()
@@ -193,6 +194,15 @@ var setFilenames = async function (data) {
   return data
 }
 
+var isImage = data => {
+  if (data.filename) {
+    if (data.filename.match(/png$/)) {
+      return true
+    }
+  }
+  return false
+}
+
 var onInputReceived = async data => {
   try {
     console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
@@ -202,6 +212,11 @@ var onInputReceived = async data => {
         throw Error('File too small to be processed: ' + duration + ' seconds')
       }
     }
+    if (isImage(data)) {
+      console.log('Image, pass through, send media without changes')
+      sendMedia(data)
+      return
+    }
     // data = assignment(data, JSON.parse(JSON.stringify(settings.media)))
     data = assignment(JSON.parse(JSON.stringify(settings.media)), data)
     // save input in meta
@@ -210,6 +225,7 @@ var onInputReceived = async data => {
     }
     let etnaInput = JSON.parse(JSON.stringify(data))
     // download
+    delete data.input
     data = await downloadFile(data)
     for (var key in data.details) {
       await downloadFile(data.details[key])

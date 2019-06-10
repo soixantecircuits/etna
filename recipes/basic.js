@@ -54,7 +54,8 @@ module.exports = {
           // watermarkInputOption = '-loop 1' // not needed in latest ffmpeg
         }
         isImage = true
-        withAudio = !(watermark.keepAudio === false)
+        // withAudio = !(watermark.keepAudio === false)
+        withAudio = watermark.keepAudio
         if (watermark.end) {
           var start = watermark.start || 0
           var end = watermark.end || start + 2
@@ -151,10 +152,17 @@ module.exports = {
             })
             videoInput = 'cropped'
           }
+
+          complexFilter.push({
+            filter: 'scale2ref',
+            inputs: ['1:0', videoInput],
+            outputs: '[scaled][ref]'
+          })
+
           complexFilter.push({
             filter: 'overlay',
             options: ['format=rgb'],
-            inputs: [videoInput, '1:0'],
+            inputs: ['ref', 'scaled'],
             outputs: 'output'
           })
         }
@@ -213,7 +221,29 @@ module.exports = {
       '-maxrate ' + bitrate + 'k',
       '-bufsize ' + 2 * bitrate + 'k'
     ]
-    ffmpeg(input)
+    var meta = standardSettings.getMeta(data)
+    var watermark = meta.watermark
+    let proc = ffmpeg(input)
+
+    if (watermark) {
+      proc.input(watermark)
+      .complexFilter([
+        //[1:0][0:0]scale2ref[scaled][ref];[ref][scaled]overlay=format=rgb[output]
+        {
+          filter: 'scale2ref',
+          inputs: ['1:0', '0:0'],
+          outputs: '[scaled][ref]'
+        },
+        {
+          filter: 'overlay',
+          options: 'format=rgb',
+          inputs: ['ref', 'scaled'],
+          outputs: 'output'
+        }
+      ], 'output')
+      // .inputOption('-loop 1')
+    }
+    proc
       // .audioCodec('libmp3lame')
       .videoCodec(videoCodec)
       .outputOptions(outputOptions)
