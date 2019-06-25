@@ -134,7 +134,11 @@ var downloadWithCache = async function (url) {
     }
     if (!exists) {
       console.log('downloading ' + url)
-      await download(url, settings.folder.tmpDownload, {filename})
+      try {
+        await download(url, settings.folder.tmpDownload, {filename})
+      } catch (e) {
+        throw e
+      }
     } else {
       console.log('in cache: ' + url)
     }
@@ -168,8 +172,12 @@ var downloadFilesInMeta = async function (data) {
   let values = data.meta
   for (let {parent, key, value} of deepIterator(values)) {
     if (key !== 'mjpgStream' && value && typeof value === 'string' && validUrl.isUri(value)) {
-      let filepath = await downloadWithCache(value)
-      parent[key] = filepath
+      try {
+        let filepath = await downloadWithCache(value)
+        parent[key] = filepath
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
   return data
