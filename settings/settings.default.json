@@ -40,6 +40,7 @@
     "tmpDownload": "/tmp/etna/tmp-download",
     "output": "/tmp/etna"
   },
+  "cache": false,
   "media": {
     "meta":{
       "watermark":"assets/watermark.png",
@@ -50,9 +51,9 @@
     }
   },
   "pingpong":{
-    "gif": true,
-    "inputFramerate": 13,
-    "loops": 1
+    "gif": false,
+    "inputFramerate": 30,
+    "loops": 2
   },
   "nuke":{
     "executable": "/path/to/nuke/executable",

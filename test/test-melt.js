@@ -26,6 +26,14 @@ spaceBro.on('connect', function () {
       melt: {
         master: 'example/laplage.mp4'
       }
+    },
+    details: {
+      "1": {
+        path: 'example/calculatedmovements.mp4'
+      },
+      "2": {
+        path: 'example/calculatedmovements.mp4'
+      }
     }
   })
   console.log('emit ')

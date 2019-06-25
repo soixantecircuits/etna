@@ -52,7 +52,7 @@ var pingpong = function (data, callback) {
     console.log('use pingpong loops')
     if (watermark) {
       command.complexFilter([
-        '[0]reverse[r];[0][r]concat,loop=' + settings.pingpong.loops + ':250,setpts=N/' + settings.pingpong.inputFramerate + '/TB,scale=640:640[pingpong]',
+        '[0]reverse[r];[0][r]concat,loop=' + settings.pingpong.loops + ':250,setpts=N/' + settings.pingpong.inputFramerate + '/TB[pingpong]',
         '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0[c]',
         '[c][1] overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2+100'
           // '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0,scale=640:640',
@@ -60,7 +60,7 @@ var pingpong = function (data, callback) {
       ])
     } else {
       command.complexFilter([
-        '[0]reverse[r];[0][r]concat,loop=' + settings.pingpong.loops + ':250,setpts=N/' + settings.pingpong.inputFramerate + '/TB,scale=640:640[pingpong]',
+        '[0]reverse[r];[0][r]concat,loop=' + settings.pingpong.loops + ':250,setpts=N/' + settings.pingpong.inputFramerate + '/TB[pingpong]',
         '[pingpong]crop=in_h:in_h:(in_w-in_h)/2:0'
       ])
     }
