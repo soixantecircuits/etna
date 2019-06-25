@@ -56,7 +56,7 @@ var record = function (data, callback) {
     command
       .input(audioDevice)
       .inputOptions('-thread_queue_size ' + thread_queue_size)
-      .inputOptions(['-f ' + audioInputDevice, '-ac 2'])
+      .inputOptions(['-f ' + audioInputDevice, '-ac 2', '-t ' + duration])
   }
   if (audioOption) {
     command
