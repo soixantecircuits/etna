@@ -144,6 +144,7 @@ var setFilenames = async function (data) {
   }
   if (data.input) {
     data.output = data.output || path.join(settings.folder.output, path.basename(data.input))
+    data.output += '.mp4'
   } else {
     if (!data.output) {
       var date = moment()
@@ -171,6 +172,7 @@ var onInputReceived = async data => {
     }
     data.meta.etnaInput = JSON.parse(JSON.stringify(data))
     // download
+    delete data.input
     data = await downloadFile(data)
     // process
     data = await setFilenames(data)
