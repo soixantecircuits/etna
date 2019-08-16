@@ -43,7 +43,7 @@
   "media": {
     "meta":{
       "watermark":"assets/watermark.png",
-      "melt":{
+      "//melt":{
         "script": "example/edit.mlt"
       },
       "useVaapi": false
