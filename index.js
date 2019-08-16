@@ -16,6 +16,7 @@ const access = promisify(fs.access)
 const assignment = require('assignment')
 const deepIterator = require('deep-iterator').default
 const validUrl = require('valid-url')
+const filenamify = require('filenamify')
 
 var settings = standardSettings.getSettings()
 
@@ -117,6 +118,34 @@ var getDuration = path => {
   })
 }
 
+var downloadWithCache = async function (url) {
+  let filename = filenamify(url)
+  let filepath = path.join(settings.folder.tmpDownload, filename)
+  if (!settings.cache) {
+    console.log('downloading ' + url)
+    await download(url, settings.folder.tmpDownload, {filename})
+  } else {
+    let exists = false
+    try {
+      await access(filepath)
+      exists = true
+    } catch (e) {
+      exists = false
+    }
+    if (!exists) {
+      console.log('downloading ' + url)
+      try {
+        await download(url, settings.folder.tmpDownload, {filename})
+      } catch (e) {
+        throw e
+      }
+    } else {
+      console.log('in cache: ' + url)
+    }
+  }
+  return filepath
+}
+
 var downloadFile = async function (data) {
   if (data.url) {
     let exists = false
@@ -130,9 +159,7 @@ var downloadFile = async function (data) {
     }
     if (!exists) {
       try {
-        console.log('downloading ' + data.url)
-        await download(data.url, settings.folder.tmpDownload, {filename: path.basename(data.url)})
-        data.path = path.join(settings.folder.tmpDownload, path.basename(data.url))
+        data.path = await downloadWithCache(data.url)
       } catch (e) {
         console.log(e)
       }
@@ -145,10 +172,12 @@ var downloadFilesInMeta = async function (data) {
   let values = data.meta
   for (let {parent, key, value} of deepIterator(values)) {
     if (key !== 'mjpgStream' && key !== 'baseURL' && value && typeof value === 'string' && validUrl.isUri(value)) {
-      console.log('downloading ' + value)
-      await download(value, settings.folder.tmpDownload, {filename: path.basename(value)})
-      let filepath = path.join(settings.folder.tmpDownload, path.basename(value))
-      parent[key] = filepath
+      try {
+        let filepath = await downloadWithCache(value)
+        parent[key] = filepath
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
   return data

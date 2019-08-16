@@ -40,6 +40,7 @@
     "tmpDownload": "/tmp/etna/tmp-download",
     "output": "/tmp/etna"
   },
+  "cache": false,
   "media": {
     "meta":{
       "watermark":"assets/watermark.png",

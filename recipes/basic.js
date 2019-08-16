@@ -54,7 +54,8 @@ module.exports = {
           // watermarkInputOption = '-loop 1' // not needed in latest ffmpeg
         }
         isImage = true
-        withAudio = !(watermark.keepAudio === false)
+        // withAudio = !(watermark.keepAudio === false)
+        withAudio = watermark.keepAudio
         if (watermark.end) {
           var start = watermark.start || 0
           var end = watermark.end || start + 2
@@ -151,10 +152,17 @@ module.exports = {
             })
             videoInput = 'cropped'
           }
+
+          complexFilter.push({
+            filter: 'scale2ref',
+            inputs: ['1:0', videoInput],
+            outputs: '[scaled][ref]'
+          })
+
           complexFilter.push({
             filter: 'overlay',
             options: ['format=rgb'],
-            inputs: [videoInput, '1:0'],
+            inputs: ['ref', 'scaled'],
             outputs: 'output'
           })
         }

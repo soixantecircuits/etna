@@ -50,12 +50,13 @@ var record = function (data, callback) {
   var thread_queue_size = meta.thread_queue_size || '100024'
   var command = ffmpeg()
   var audioOption = meta.audioOption
+  var audioInputDevice = meta.audioInputDevice || 'alsa'
   var complexFilter = ''
   if (audioDevice) {
     command
       .input(audioDevice)
       .inputOptions('-thread_queue_size ' + thread_queue_size)
-      .inputOptions(['-f alsa', '-ac 2'])
+      .inputOptions(['-f ' + audioInputDevice, '-ac 2', '-t ' + duration])
   }
   if (audioOption) {
     command
