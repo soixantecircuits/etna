@@ -144,7 +144,7 @@ var downloadFile = async function (data) {
 var downloadFilesInMeta = async function (data) {
   let values = data.meta
   for (let {parent, key, value} of deepIterator(values)) {
-    if (key !== 'mjpgStream' && value && typeof value === 'string' && validUrl.isUri(value)) {
+    if (key !== 'mjpgStream' && key !== 'baseURL' && value && typeof value === 'string' && validUrl.isUri(value)) {
       console.log('downloading ' + value)
       await download(value, settings.folder.tmpDownload, {filename: path.basename(value)})
       let filepath = path.join(settings.folder.tmpDownload, path.basename(value))
