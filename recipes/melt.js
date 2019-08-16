@@ -17,7 +17,12 @@ var createMeltScript = async function (data, callback) {
     if (meta.melt.scriptString) {
       xml = meta.melt.scriptString
     } else {
+      try {
       xml = await readFile(meta.melt.script, 'utf8')
+      } catch (err) {
+        console.error('Error reading file ' + meta.melt.script)
+        throw err
+      }
     }
     // replace
     if (data.input) {
