@@ -38,6 +38,103 @@ var recordMpeg4 = function (data, callback) {
   return command
 }
 
+var recordAudioOnVideo = function (data, callback) {
+  var output = data.outputTempPath
+  output = path.join(path.dirname(output), path.basename(output, path.extname(output)) + '.wav')
+  data.outputAudio = output
+  var meta = standardSettings.getMeta(data)
+  var audioDevice = meta.audioDevice
+  var duration = meta.duration || 5
+  var outputFps = meta.outputFps || 30
+  var inputFps = meta.inputFps || 30
+  var bitrate = meta.bitrate || '3500k'
+  var videoCodec = meta.videoCodec || 'libx264'
+  var thread_queue_size = meta.thread_queue_size || '100024'
+  var command = ffmpeg()
+  var audioOption = meta.audioOption
+  var audioInputDevice = meta.audioInputDevice || 'alsa'
+  var complexFilter = ''
+  if (audioDevice) {
+    command
+      .input(audioDevice)
+      .inputOptions('-thread_queue_size ' + thread_queue_size)
+      .inputOptions(['-f alsa', '-ac 2'])
+      .inputOptions(['-f ' + audioInputDevice, '-ac 2', '-t ' + duration])
+  }
+  if (audioOption) {
+    command
+      .inputOptions(audioOption)
+  }
+  if (meta.audioCodec) {
+    command
+      .audioCodec(meta.audioCodec)
+  }
+  command
+      .on('end', function () {
+        console.log('file have been recorded succesfully')
+        addVideo(data, function () {
+          if (callback) return callback(null)
+        })
+      })
+      .on('error', function (err, stdout, stderr) {
+        console.log('an error happened: ' + err.message, stdout, stderr)
+        if (callback) return callback(null)
+      })
+      .on('start', function (commandLine) {
+        console.log('Spawned Ffmpeg with command: ' + commandLine)
+      })
+      .output(output)
+  command.run()
+}
+
+function addVideo (data, callback) {
+  var output = data.outputTempPath
+  var meta = standardSettings.getMeta(data)
+  var audioDevice = meta.audioDevice
+  var duration = meta.duration || 5
+  var outputFps = meta.outputFps || 30
+  var inputFps = meta.inputFps || 30
+  var bitrate = meta.bitrate || '3500k'
+  var videoCodec = meta.videoCodec || 'libx264'
+  var thread_queue_size = meta.thread_queue_size || '100024'
+  var command = ffmpeg()
+  command
+      .input(data.outputAudio)
+      .input(meta.master)
+  var audioOption = meta.audioOption
+  var complexFilter = ''
+  if (meta.useVaapi) {
+    command
+      .inputOptions('-vaapi_device /dev/dri/renderD128')
+    if (complexFilter !== '') {
+      complexFilter += ','
+    }
+    complexFilter += 'format=nv12,hwupload'
+    videoCodec = 'h264_vaapi'
+  }
+  if (complexFilter !== '') {
+    command.complexFilter(complexFilter)
+  }
+  command
+      .videoCodec(videoCodec)
+      .outputOptions(['-pix_fmt yuv420p', '-b:v ' + bitrate])
+      .fps(outputFps)
+      .on('end', function () {
+        console.log('file have been recorded succesfully')
+        if (callback) return callback(null)
+      })
+      .on('error', function (err, stdout, stderr) {
+        console.log('an error happened: ' + err.message, stdout, stderr)
+        if (callback) return callback(null)
+      })
+      .on('start', function (commandLine) {
+        console.log('Spawned Ffmpeg with command: ' + commandLine)
+      })
+      .output(output)
+  command.run()
+  return command
+}
+
 var record = function (data, callback) {
   var output = data.outputTempPath
   var meta = standardSettings.getMeta(data)
@@ -134,6 +231,7 @@ var recordWithThumbnail = function (data, callback) {
 module.exports = {
   record: record,
   recordWithThumbnail: recordWithThumbnail,
+  recordAudioOnVideo: recordAudioOnVideo,
   recordMpeg4: recordMpeg4,
   record10000k: function (data, callback) {
     var output = data.outputTempPath
