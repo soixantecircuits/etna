@@ -5,7 +5,7 @@ var settings = standardSettings.getSettings()
 settings.service.spacebro.client.name = settings.service.spacebro.client.name + '-test'
 var spacebroClient = new SpacebroClient(settings.service.spacebro)
 
-let id = moment().format('YYYY-MM-DDTHH-mm-ss-SSS')
+const id = moment().format('YYYY-MM-DDTHH-mm-ss-SSS')
 
 setTimeout(() => {
   spacebroClient.emit('inMedia', {

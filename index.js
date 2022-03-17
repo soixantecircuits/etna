@@ -11,7 +11,7 @@ var standardSettings = require('standard-settings')
 var packageInfos = require('./package.json')
 var uniquefilename = require('uniquefilename')
 const download = require('download')
-const {promisify} = require('util')
+const { promisify } = require('util')
 const access = promisify(fs.access)
 const assignment = require('assignment')
 const deepIterator = require('deep-iterator').default
@@ -22,14 +22,15 @@ var settings = standardSettings.getSettings()
 
 var recipes = require('./recipes')
 
-mkdirp(settings.folder.output)
-mkdirp(settings.folder.tmp)
+mkdirp.sync(settings.folder.output)
+mkdirp.sync(settings.folder.tmp)
 
 var filename
-if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
+if (process.argv.indexOf('-f') !== -1) {
+  // does our flag exist?
   filename = process.argv[process.argv.indexOf('-f') + 1] // grab the next item
   var jsonfile = JSON.parse(fs.readFileSync(filename, 'utf8'))
-  if (jsonfile['edit']['input'] && jsonfile['edit']['output']) {
+  if (jsonfile.edit.input && jsonfile.edit.output) {
     var proc = ffmpeg()
       .audioCodec('libmp3lame')
       .on('end', function () {
@@ -44,7 +45,7 @@ if (process.argv.indexOf('-f') !== -1) { // does our flag exist?
     jsonfile.edit.input.forEach(function (file) {
       proc.input(path.join(path.dirname(filename), file))
     })
-    proc.mergeToFile(path.join(path.dirname(filename), jsonfile['edit']['output']))
+    proc.mergeToFile(path.join(path.dirname(filename), jsonfile.edit.output))
   }
 } else {
   // console.log("Mention a json file: node index.js -f example/edit.json")
@@ -81,10 +82,14 @@ var spacebroClient = new SpacebroClient(settings.service.spacebro.host, settings
 */
 var spacebroClient = new SpacebroClient()
 
-console.log(`Connecting to spacebro on ${settings.service.spacebro.host}:${settings.service.spacebro.port}`)
+console.log(
+  `Connecting to spacebro on ${settings.service.spacebro.host}:${settings.service.spacebro.port}`
+)
 
 spacebroClient.on('connect', () => {
-  console.log(`spacebro: ${settings.service.spacebro.client.name} connected to ${settings.service.spacebro.host}:${settings.service.spacebro.port}#${settings.service.spacebro.channelName}`)
+  console.log(
+    `spacebro: ${settings.service.spacebro.client.name} connected to ${settings.service.spacebro.host}:${settings.service.spacebro.port}#${settings.service.spacebro.channelName}`
+  )
 })
 
 spacebroClient.on('newClient', (data) => {
@@ -96,18 +101,25 @@ spacebroClient.on('disconnect', () => {
 })
 
 var sendMedia = function (data) {
-  if (data.input && data.input.includes && data.input.includes(settings.folder.tmpDownload)) {
+  if (
+    data.input &&
+    data.input.includes &&
+    data.input.includes(settings.folder.tmpDownload)
+  ) {
     fs.unlink(data.input, () => {})
   }
   delete data.input
   delete data.output
   delete data.outputTempPath
-  spacebroClient.emit(settings.service.spacebro.client.out.outVideo.eventName, data)
+  spacebroClient.emit(
+    settings.service.spacebro.client.out.outVideo.eventName,
+    data
+  )
   console.log(data)
 }
 
-var getDuration = path => {
-  return new Promise(resolve => {
+var getDuration = (path) => {
+  return new Promise((resolve) => {
     ffmpeg.ffprobe(path, function (err, metadata) {
       if (err) {
         resolve(0)
@@ -119,25 +131,25 @@ var getDuration = path => {
 }
 
 var downloadWithCache = async function (url) {
-  let filename = filenamify(url)
-  let filepath = path.join(settings.folder.tmpDownload, filename)
+  const filename = filenamify(url)
+  const filepath = path.join(settings.folder.tmpDownload, filename)
   if (!settings.cache) {
     console.log('downloading ' + url)
-    await download(url, settings.folder.tmpDownload, {filename})
+    await download(url, settings.folder.tmpDownload, { filename })
   } else {
     let exists = false
     try {
       await access(filepath)
       exists = true
-    } catch (e) {
+    } catch (err) {
       exists = false
     }
     if (!exists) {
       console.log('downloading ' + url)
       try {
-        await download(url, settings.folder.tmpDownload, {filename})
-      } catch (e) {
-        throw e
+        await download(url, settings.folder.tmpDownload, { filename })
+      } catch (err) {
+        throw err
       }
     } else {
       console.log('in cache: ' + url)
@@ -169,11 +181,17 @@ var downloadFile = async function (data) {
 }
 
 var downloadFilesInMeta = async function (data) {
-  let values = data.meta
-  for (let {parent, key, value} of deepIterator(values)) {
-    if (key !== 'mjpgStream' && key !== 'baseURL' && value && typeof value === 'string' && validUrl.isUri(value)) {
+  const values = data.meta
+  for (const { parent, key, value } of deepIterator(values)) {
+    if (
+      key !== 'mjpgStream' &&
+      key !== 'baseURL' &&
+      value &&
+      typeof value === 'string' &&
+      validUrl.isUri(value)
+    ) {
       try {
-        let filepath = await downloadWithCache(value)
+        const filepath = await downloadWithCache(value)
         parent[key] = filepath
       } catch (e) {
         console.log(e)
@@ -184,25 +202,32 @@ var downloadFilesInMeta = async function (data) {
 }
 
 var setFilenames = async function (data) {
-  if (data.path && (typeof data.input !== 'string')) {
+  if (data.path && typeof data.input !== 'string') {
     data.input = data.path
   }
   if (data.input) {
-    data.output = data.output || path.join(settings.folder.output, path.basename(data.input))
+    data.output =
+      data.output ||
+      path.join(settings.folder.output, path.basename(data.input))
     data.output += '.mp4'
   } else {
     if (!data.output) {
       var date = moment()
       var timestampName = date.format('YYYY-MM-DDTHH-mm-ss-SSS') + '.mp4'
-      data.output = path.join(settings.folder.output, path.basename(timestampName))
+      data.output = path.join(
+        settings.folder.output,
+        path.basename(timestampName)
+      )
     }
   }
   data.output = await uniquefilename.get(data.output)
-  data.outputTempPath = data.outputTempPath || path.join(settings.folder.tmp, path.basename(data.output))
+  data.outputTempPath =
+    data.outputTempPath ||
+    path.join(settings.folder.tmp, path.basename(data.output))
   return data
 }
 
-var isImage = data => {
+var isImage = (data) => {
   if (data.filename) {
     if (data.filename.match(/png$/)) {
       return true
@@ -211,11 +236,15 @@ var isImage = data => {
   return false
 }
 
-var onInputReceived = async data => {
+var onInputReceived = async (data) => {
   try {
-    console.log(`Received event ${settings.service.spacebro.client.in.inMedia.eventName}, new media: ${JSON.stringify(data)}`)
+    console.log(
+      `Received event ${
+        settings.service.spacebro.client.in.inMedia.eventName
+      }, new media: ${JSON.stringify(data)}`
+    )
     if (settings.minDuration) {
-      let duration = await getDuration(data.path)
+      const duration = await getDuration(data.path)
       if (duration < settings.minDuration) {
         throw Error('File too small to be processed: ' + duration + ' seconds')
       }
@@ -231,7 +260,7 @@ var onInputReceived = async data => {
     if (data.meta === undefined) {
       data.meta = {}
     }
-    let etnaInput = JSON.parse(JSON.stringify(data))
+    const etnaInput = JSON.parse(JSON.stringify(data))
     // download
     delete data.input
     data = await downloadFile(data)
@@ -255,7 +284,9 @@ var onInputReceived = async data => {
             data.type = 'video/' + path.extname(data.output).substring(1)
             data.path = data.output
             data.file = path.basename(data.output)
-            data.url = `http://${settings.server.host}:${settings.server.port}/${path.basename(data.output)}`
+            data.url = `http://${settings.server.host}:${
+              settings.server.port
+            }/${path.basename(data.output)}`
             var meta = standardSettings.getMeta(data)
             if (meta.thumbnail) {
               data.input = data.output
@@ -278,11 +309,19 @@ var onInputReceived = async data => {
 
 // TODO: document 'new-media' data.recipe, data.input, data.output
 // add data.options, like the path for an image to watermark, framerate, ...
-spacebroClient.on(settings.service.spacebro.client.in.inMedia.eventName, data => { onInputReceived(data) })
-
-spacebroClient.on(settings.service.spacebro.client.in.stopLastProcess.eventName, function (data) {
-  console.log('kill')
-  if (lastCommand) {
-    lastCommand.kill('SIGINT')
+spacebroClient.on(
+  settings.service.spacebro.client.in.inMedia.eventName,
+  (data) => {
+    onInputReceived(data)
   }
-})
+)
+
+spacebroClient.on(
+  settings.service.spacebro.client.in.stopLastProcess.eventName,
+  function (data) {
+    console.log('kill')
+    if (lastCommand) {
+      lastCommand.kill('SIGINT')
+    }
+  }
+)

@@ -18,7 +18,7 @@ var createMeltScript = async function (data, callback) {
       xml = meta.melt.scriptString
     } else {
       try {
-      xml = await readFile(meta.melt.script, 'utf8')
+        xml = await readFile(meta.melt.script, 'utf8')
       } catch (err) {
         console.error('Error reading file ' + meta.melt.script)
         throw err
@@ -31,9 +31,9 @@ var createMeltScript = async function (data, callback) {
     xml = xml.replace(/master.mp4/g, path.resolve(meta.melt.master))
     if (data.details) {
       for (let i = 0; i < Object.keys(data.details).length; i++) {
-        let key = Object.keys(data.details)[i]
-        let name = 'details.' + key
-        let regex = new RegExp(name + '\.(mp4|jpg)', 'g')
+        const key = Object.keys(data.details)[i]
+        const name = 'details.' + key
+        const regex = new RegExp(name + '\.(mp4|jpg)', 'g')
         xml = xml.replace(regex, path.resolve(data.details[key].path))
       }
     }

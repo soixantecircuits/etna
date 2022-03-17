@@ -18,7 +18,7 @@ module.exports = {
     var meta = standardSettings.getMeta(data)
     var watermark = meta.watermark
     if (typeof watermark !== 'object') {
-      watermark = {path: watermark}
+      watermark = { path: watermark }
     }
     if (watermark.path === undefined) {
       data.outputTempPath = data.input
@@ -72,7 +72,7 @@ module.exports = {
             overlayOptions.push('shortest=1')
           }
           var watermarkInput = '1:0'
-          var videoInput = '0:v'
+          let videoInput = '0:v'
           if (watermark.width) {
             var width = watermark.width || 100
             var height = watermark.height || 100
@@ -124,16 +124,16 @@ module.exports = {
             inputs: watermarkInput,
             outputs: 'watermark'
           },
-            {
-              filter: 'overlay',
-              options: overlayOptions,
-              inputs: [videoInput, 'watermark'],
-              outputs: 'output'
-            })
+          {
+            filter: 'overlay',
+            options: overlayOptions,
+            inputs: [videoInput, 'watermark'],
+            outputs: 'output'
+          })
         } else {
-          var videoInput = '0:v'
+          let videoInput = '0:v'
           if (speed) {
-            var options = 1/speed + '*PTS'
+            const options = 1 / speed + '*PTS'
             complexFilter.push({
               filter: 'setpts',
               options: [options],
@@ -143,7 +143,7 @@ module.exports = {
             videoInput = 'speeded'
           }
           if (crop) {
-            var options = crop.width + ':' + crop.height + ':' + '(in_w-' + crop.width + ')/2:(in_h-' + crop.height + ')/2'
+            const options = crop.width + ':' + crop.height + ':' + '(in_w-' + crop.width + ')/2:(in_h-' + crop.height + ')/2'
             complexFilter.push({
               filter: 'crop',
               options: [options],
@@ -216,31 +216,31 @@ module.exports = {
       '-movflags +faststart',
       '-threads 0',
       '-pix_fmt yuv420p',
-        // '-gifflags -transdiff -y',
-        // '-vcodec ' + bitrate + 'k',
+      // '-gifflags -transdiff -y',
+      // '-vcodec ' + bitrate + 'k',
       '-maxrate ' + bitrate + 'k',
       '-bufsize ' + 2 * bitrate + 'k'
     ]
     var meta = standardSettings.getMeta(data)
     var watermark = meta.watermark
-    let proc = ffmpeg(input)
+    const proc = ffmpeg(input)
 
     if (watermark) {
       proc.input(watermark)
-      .complexFilter([
-        //[1:0][0:0]scale2ref[scaled][ref];[ref][scaled]overlay=format=rgb[output]
-        {
-          filter: 'scale2ref',
-          inputs: ['1:0', '0:0'],
-          outputs: '[scaled][ref]'
-        },
-        {
-          filter: 'overlay',
-          options: 'format=rgb',
-          inputs: ['ref', 'scaled'],
-          outputs: 'output'
-        }
-      ], 'output')
+        .complexFilter([
+        // [1:0][0:0]scale2ref[scaled][ref];[ref][scaled]overlay=format=rgb[output]
+          {
+            filter: 'scale2ref',
+            inputs: ['1:0', '0:0'],
+            outputs: '[scaled][ref]'
+          },
+          {
+            filter: 'overlay',
+            options: 'format=rgb',
+            inputs: ['ref', 'scaled'],
+            outputs: 'output'
+          }
+        ], 'output')
       // .inputOption('-loop 1')
     }
     proc
@@ -406,12 +406,12 @@ module.exports = {
         inputs: '1:0',
         outputs: input1
       },
-        {
-          filter: 'overlay',
-          options: 'format=rgb',
-          inputs: [input0, input1],
-          outputs: output0
-        })
+      {
+        filter: 'overlay',
+        options: 'format=rgb',
+        inputs: [input0, input1],
+        outputs: output0
+      })
     })
     complexFilter.push({
       filter: 'overlay',

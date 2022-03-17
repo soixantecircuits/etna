@@ -12,7 +12,7 @@ settings.service.spacebro.channelName = settings.service.spacebro.channelName ||
 
 spaceBro.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
   client: {
-    name: settings.service.spacebro.clientName + '-test',
+    name: settings.service.spacebro.clientName + '-test'
   },
   channelName: settings.service.spacebro.channelName,
   verbose: false,
@@ -27,17 +27,17 @@ spaceBro.on(settings.service.spacebro.client.out.outVideo.eventName, function (d
 })
 
 setTimeout(function () {
-  spaceBro.emit(settings.service.spacebro.client['in'].inMedia.eventName, {
+  spaceBro.emit(settings.service.spacebro.client.in.inMedia.eventName, {
     recipe: 'record',
     // path: 'record.mp4', // optional, if not defined it will be a timestamp
     meta: {
       // mjpgStream: 'http://localhost:8880/?action=stream',
-      //mjpgStream: 'http://smilecooker-box-03.estu.la:6080/?action=stream',
-      //mjpgStream: 'http://eth0.master-sci.estu.la:6080/?action=stream',
+      // mjpgStream: 'http://smilecooker-box-03.estu.la:6080/?action=stream',
+      // mjpgStream: 'http://eth0.master-sci.estu.la:6080/?action=stream',
       webcam: '/dev/video0',
       size: '1920x1080',
       duration: 3,
-      //mirror: true,
+      // mirror: true,
       upsideDown: false,
       // audioDevice: 'default'
       audioDevice: false,

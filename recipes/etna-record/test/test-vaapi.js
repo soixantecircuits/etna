@@ -12,7 +12,7 @@ settings.service.spacebro.channelName = settings.service.spacebro.channelName ||
 
 spaceBro.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
   client: {
-    name: settings.service.spacebro.clientName + '-test',
+    name: settings.service.spacebro.clientName + '-test'
   },
   channelName: settings.service.spacebro.channelName,
   verbose: false,
@@ -27,7 +27,7 @@ spaceBro.on(settings.service.spacebro.client.out.outVideo.eventName, function (d
 })
 
 setTimeout(function () {
-  spaceBro.emit(settings.service.spacebro.client['in'].inMedia.eventName, {
+  spaceBro.emit(settings.service.spacebro.client.in.inMedia.eventName, {
     recipe: 'record',
     meta: {
       mjpgStream: 'http://localhost:36700/?action=stream',

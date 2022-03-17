@@ -1,6 +1,6 @@
 'use strict'
 
-let init = (app, infos) => {
+const init = (app, infos) => {
   app.get('/', (req, res) => {
     res.send(`
       <h1>${infos.app.name}</h1>

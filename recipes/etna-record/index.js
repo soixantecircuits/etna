@@ -14,26 +14,26 @@ var recordMpeg4 = function (data, callback) {
   var duration = meta.duration || 5
   var outputFps = meta.outputFps || 30
   var command = ffmpeg(audioDevice)
-      .inputOptions(['-f alsa', '-ac 2'])
-      .input(mjpgStream)
-      .inputOptions(['-f mjpeg', '-r 30'])
-      // .audioCodec('libmp3lame')
-      // .videoCodec('libx264')
-      .videoCodec('mpeg4')
-      .outputOptions(['-pix_fmt yuv420p', '-b 100000000', '-t ' + duration])
-      .fps(outputFps)
-      .on('end', function () {
-        console.log('file have been recorded succesfully')
-        if (callback) return callback(null)
-      })
-      .on('error', function (err, stdout, stderr) {
-        console.log('an error happened: ' + err.message, stdout, stderr)
-        if (callback) return callback(null)
-      })
-      .on('start', function (commandLine) {
-        console.log('Spawned Ffmpeg with command: ' + commandLine)
-      })
-      .output(output)
+    .inputOptions(['-f alsa', '-ac 2'])
+    .input(mjpgStream)
+    .inputOptions(['-f mjpeg', '-r 30'])
+  // .audioCodec('libmp3lame')
+  // .videoCodec('libx264')
+    .videoCodec('mpeg4')
+    .outputOptions(['-pix_fmt yuv420p', '-b 100000000', '-t ' + duration])
+    .fps(outputFps)
+    .on('end', function () {
+      console.log('file have been recorded succesfully')
+      if (callback) return callback(null)
+    })
+    .on('error', function (err, stdout, stderr) {
+      console.log('an error happened: ' + err.message, stdout, stderr)
+      if (callback) return callback(null)
+    })
+    .on('start', function (commandLine) {
+      console.log('Spawned Ffmpeg with command: ' + commandLine)
+    })
+    .output(output)
   command.run()
   return command
 }
@@ -68,12 +68,12 @@ var record = function (data, callback) {
   }
   if (meta.mjpgStream) {
     command
-        .input(meta.mjpgStream)
-        .inputOptions(['-f mjpeg', '-r ' + inputFps, '-t ' + duration])
+      .input(meta.mjpgStream)
+      .inputOptions(['-f mjpeg', '-r ' + inputFps, '-t ' + duration])
   } else {
     command
-        .input(meta.webcam)
-        .inputOptions(['-f v4l2', '-framerate ' + inputFps, '-video_size ' + meta.size, '-t ' + duration])
+      .input(meta.webcam)
+      .inputOptions(['-f v4l2', '-framerate ' + inputFps, '-video_size ' + meta.size, '-t ' + duration])
   }
   if (meta.upsideDown) {
     complexFilter += 'hflip,vflip'
@@ -91,21 +91,21 @@ var record = function (data, callback) {
     command.complexFilter(complexFilter)
   }
   command
-      .videoCodec(videoCodec)
-      .outputOptions(['-pix_fmt yuv420p', '-b:v ' + bitrate])
-      .fps(outputFps)
-      .on('end', function () {
-        console.log('file have been recorded succesfully')
-        if (callback) return callback(null)
-      })
-      .on('error', function (err, stdout, stderr) {
-        console.log('an error happened: ' + err.message, stdout, stderr)
-        if (callback) return callback(null)
-      })
-      .on('start', function (commandLine) {
-        console.log('Spawned Ffmpeg with command: ' + commandLine)
-      })
-      .output(output)
+    .videoCodec(videoCodec)
+    .outputOptions(['-pix_fmt yuv420p', '-b:v ' + bitrate])
+    .fps(outputFps)
+    .on('end', function () {
+      console.log('file have been recorded succesfully')
+      if (callback) return callback(null)
+    })
+    .on('error', function (err, stdout, stderr) {
+      console.log('an error happened: ' + err.message, stdout, stderr)
+      if (callback) return callback(null)
+    })
+    .on('start', function (commandLine) {
+      console.log('Spawned Ffmpeg with command: ' + commandLine)
+    })
+    .output(output)
   command.run()
   return command
 }

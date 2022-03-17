@@ -5,7 +5,7 @@ var settings = standardSettings.getSettings()
 
 spacebroClient.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
   client: {
-    name: settings.service.spacebro.client.name + '-test',
+    name: settings.service.spacebro.client.name + '-test'
   },
   channelName: settings.service.spacebro.channelName,
   verbose: false,
@@ -46,5 +46,5 @@ spacebroClient.on('connect', () => {
       }
     }
   })
-  console.log(`emit inMedia`)
+  console.log('emit inMedia')
 })

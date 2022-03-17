@@ -20,21 +20,21 @@ var mixAudio = function (data, callback) {
     inputs: ['0', '1']
   })
   ffmpeg(input)
-      .input(meta.audio)
-      .videoCodec('copy')
-      .complexFilter(complexFilter)
-      .on('end', function () {
-        console.log('files have been mixed succesfully')
-        if (callback) return callback(null)
-      })
-      .on('error', function (err, stdout, stderr) {
-        console.log('an error happened: ' + err.message, stdout, stderr)
-      })
-      .on('start', function (commandLine) {
-        console.log('Spawned Ffmpeg with command: ' + commandLine)
-      })
-      .output(output)
-      .run()
+    .input(meta.audio)
+    .videoCodec('copy')
+    .complexFilter(complexFilter)
+    .on('end', function () {
+      console.log('files have been mixed succesfully')
+      if (callback) return callback(null)
+    })
+    .on('error', function (err, stdout, stderr) {
+      console.log('an error happened: ' + err.message, stdout, stderr)
+    })
+    .on('start', function (commandLine) {
+      console.log('Spawned Ffmpeg with command: ' + commandLine)
+    })
+    .output(output)
+    .run()
 }
 
 module.exports = {

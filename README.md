@@ -33,7 +33,9 @@ Learn more about this on [standard-settings](https://github.com/soixantecircuits
 ## Spacebro
 
 You can use etna by sending commands via spacebro.
-The example above watermarks a video
+The example above watermarks a video.
+
+The watermark recipe is in the `basic.js` file.
 
 ```
 spacebroClient.emit('new-media-for-etna', {
@@ -62,7 +64,7 @@ node test/simpletest.js
 
 A recipe is an operation on the input media. Like the watermark above, or a crop, or anything you could do on a video or image.
 
-All recipes are in the `recipes` folder.
+All recipes are in the `recipes` folder. A recipe is a named function you can export from within the recipes folder.
 To use a recipe, mention in in the media sent on spacebro, or in the settings.
 
 ## Thumbnail

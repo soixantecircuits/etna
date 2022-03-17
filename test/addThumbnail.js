@@ -30,8 +30,8 @@ spacebroClient.on(settings.service.spacebro.outputMessage, function (data) {
   process.exit()
 })
 
-//spacebroClient.on('connect', () => {
-setTimeout( () => {
+// spacebroClient.on('connect', () => {
+setTimeout(() => {
   spacebroClient.emit(settings.service.spacebro.inputMessage, {
     recipe: 'addThumbnail',
     path: 'example/calculatedmovements.mp4',

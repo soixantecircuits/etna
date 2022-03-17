@@ -24,7 +24,7 @@ spaceBro.on(settings.service.spacebro.client.out.outVideo.eventName, function (d
 spaceBro.on('connect', function () {
   readFile(settings.media.meta.melt.script, 'utf8').then((xml) => {
     delete settings.media.meta.melt.script
-    spaceBro.emit(settings.service.spacebro.client['in'].inMedia.eventName, {
+    spaceBro.emit(settings.service.spacebro.client.in.inMedia.eventName, {
       path: 'example/pacman.mov',
       output: path.join(settings.folder.output, 'edit.mp4'),
       recipe: 'melt',

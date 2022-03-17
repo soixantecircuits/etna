@@ -18,7 +18,7 @@ spaceBro.on(settings.service.spacebro.client.out.outVideo.eventName, function (d
 })
 
 spaceBro.on('connect', function () {
-  spaceBro.emit(settings.service.spacebro.client['in'].inMedia.eventName, {
+  spaceBro.emit(settings.service.spacebro.client.in.inMedia.eventName, {
     path: 'example/pacman.mov',
     output: path.join(settings.folder.output, 'edit.mp4'),
     recipe: 'melt',
@@ -28,10 +28,10 @@ spaceBro.on('connect', function () {
       }
     },
     details: {
-      "1": {
+      1: {
         path: 'example/calculatedmovements.mp4'
       },
-      "2": {
+      2: {
         path: 'example/calculatedmovements.mp4'
       }
     }
