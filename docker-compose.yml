@@ -1,0 +1,11 @@
+services:
+  video:
+    build: .
+    volumes:
+      - ./settings:/application/settings
+      - ./tmp_folder:/tmp/etna/tmp
+      - ./output_folder:/tmp/etna
+    restart: always
+    ports:
+      - 36100:36100
+      - 3333:3333
