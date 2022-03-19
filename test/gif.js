@@ -2,7 +2,8 @@ var moment = require('moment')
 const SpacebroClient = require('spacebro-client').SpacebroClient
 var standardSettings = require('standard-settings')
 var settings = standardSettings.getSettings()
-settings.service.spacebro.client.name = settings.service.spacebro.client.name + '-test'
+settings.service.spacebro.client.name =
+  settings.service.spacebro.client.name + '-test'
 var spacebroClient = new SpacebroClient(settings.service.spacebro)
 
 const id = moment().format('YYYY-MM-DDTHH-mm-ss-SSS')
@@ -57,4 +58,10 @@ setTimeout(() => {
       }
     }
   })
+  console.log('* - emited inMedia')
 }, 500)
+
+spacebroClient.on('outVideo', function (data) {
+  console.log(`video is ready: ${data.url}`)
+  process.exit(-1)
+})

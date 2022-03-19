@@ -130,3 +130,6 @@ $RECYCLE.BIN/
 *.swo
 
 # End of https://www.gitignore.io/api/linux,windows,osx,node
+
+settings/*.json
+!settings/settings.default.json

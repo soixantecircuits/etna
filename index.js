@@ -37,7 +37,7 @@ if (process.argv.indexOf('-f') !== -1) {
         console.log('files have been merged succesfully')
       })
       .on('error', function (err, stdout, stderr) {
-        console.log('an error happened: ' + err.message, stdout, stderr)
+        console.error('an error happened: ' + err.message, stdout, stderr)
       })
       .on('start', function (commandLine) {
         console.log('Spawned Ffmpeg with command: ' + commandLine)
@@ -262,6 +262,8 @@ var onInputReceived = async (data) => {
     }
     const etnaInput = JSON.parse(JSON.stringify(data))
     // download
+    // removing this function allow to use the default recipe. This might
+    // breaks something else.
     delete data.input
     data = await downloadFile(data)
     for (var key in data.details) {
@@ -278,7 +280,7 @@ var onInputReceived = async (data) => {
       if (recipe !== 'addThumbnail') {
         exec('mv ' + data.outputTempPath + ' ' + data.output, function (err) {
           if (err) {
-            console.log(err)
+            console.error('an error occured', err)
           } else {
             console.log('finished processing ' + data.output)
             data.type = 'video/' + path.extname(data.output).substring(1)

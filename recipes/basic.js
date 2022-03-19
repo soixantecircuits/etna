@@ -37,7 +37,9 @@ module.exports = {
     var speed = meta.speed
     var isInputImage = false
 
-    mediaHelper.isImage(data.input)
+    console.log('watermark data', data)
+    mediaHelper
+      .isImage(data.input)
       .then((isImage) => {
         if (isImage) {
           // dummyThumbnail(data)
@@ -108,7 +110,16 @@ module.exports = {
             if (meta.transform.pad) {
               complexFilter.push({
                 filter: 'pad',
-                options: meta.transform.pad.width + ':' + meta.transform.pad.height + ':' + meta.transform.pad.x + ':' + meta.transform.pad.y + ':' + (meta.transform.pad.color || 'white'),
+                options:
+                  meta.transform.pad.width +
+                  ':' +
+                  meta.transform.pad.height +
+                  ':' +
+                  meta.transform.pad.x +
+                  ':' +
+                  meta.transform.pad.y +
+                  ':' +
+                  (meta.transform.pad.color || 'white'),
                 inputs: videoInput,
                 outputs: 'inputpadded'
               })
@@ -116,20 +127,31 @@ module.exports = {
             }
           }
 
-          complexFilter.push({
-            // filter: 'format=pix_fmts=yuva420p,fade',
-            // options: 'in:st=' + start + ':d=' + fadeDuration + ':alpha=1,fade=out:st=' + end + ':d=' + fadeDuration + ':alpha=1',
-            filter: 'fade',
-            options: 'in:st=' + start + ':d=' + fadeDuration + ':alpha=1,fade=out:st=' + end + ':d=' + fadeDuration + ':alpha=1',
-            inputs: watermarkInput,
-            outputs: 'watermark'
-          },
-          {
-            filter: 'overlay',
-            options: overlayOptions,
-            inputs: [videoInput, 'watermark'],
-            outputs: 'output'
-          })
+          complexFilter.push(
+            {
+              // filter: 'format=pix_fmts=yuva420p,fade',
+              // options: 'in:st=' + start + ':d=' + fadeDuration + ':alpha=1,fade=out:st=' + end + ':d=' + fadeDuration + ':alpha=1',
+              filter: 'fade',
+              options:
+                'in:st=' +
+                start +
+                ':d=' +
+                fadeDuration +
+                ':alpha=1,fade=out:st=' +
+                end +
+                ':d=' +
+                fadeDuration +
+                ':alpha=1',
+              inputs: watermarkInput,
+              outputs: 'watermark'
+            },
+            {
+              filter: 'overlay',
+              options: overlayOptions,
+              inputs: [videoInput, 'watermark'],
+              outputs: 'output'
+            }
+          )
         } else {
           let videoInput = '0:v'
           if (speed) {
@@ -143,7 +165,16 @@ module.exports = {
             videoInput = 'speeded'
           }
           if (crop) {
-            const options = crop.width + ':' + crop.height + ':' + '(in_w-' + crop.width + ')/2:(in_h-' + crop.height + ')/2'
+            const options =
+              crop.width +
+              ':' +
+              crop.height +
+              ':' +
+              '(in_w-' +
+              crop.width +
+              ')/2:(in_h-' +
+              crop.height +
+              ')/2'
             complexFilter.push({
               filter: 'crop',
               options: [options],
@@ -169,14 +200,12 @@ module.exports = {
 
         var proc = ffmpeg(input)
         if (meta.audioCodec) {
-          proc
-            .audioCodec(meta.audioCodec)
+          proc.audioCodec(meta.audioCodec)
         }
         if (inputOption) {
           proc.inputOptions(inputOption)
         }
-        proc
-          .input(watermark.path)
+        proc.input(watermark.path)
         if (watermarkInputOption) {
           proc.inputOptions(watermarkInputOption)
         }
@@ -185,8 +214,7 @@ module.exports = {
           .complexFilter(complexFilter, 'output')
           .outputOptions(['-pix_fmt yuv420p'])
         if (withAudio) {
-          proc
-            .outputOptions(['-map 0:a'])
+          proc.outputOptions(['-map 0:a'])
         }
         proc
           .on('end', function () {
@@ -197,13 +225,13 @@ module.exports = {
             console.log('an error happened: ' + err.message, stdout, stderr)
           })
           .on('start', function (commandLine) {
-            console.log('Spawned Ffmpeg with command: ' + commandLine)
+            console.log('Spawned ffmpeg with command: ' + commandLine)
           })
           .output(output)
           .run()
       })
       .catch((err) => {
-        console.log(err)
+        console.error('error with watermark', err)
       })
   },
   convert: function (data, callback) {
@@ -226,9 +254,9 @@ module.exports = {
     const proc = ffmpeg(input)
 
     if (watermark) {
-      proc.input(watermark)
-        .complexFilter([
-        // [1:0][0:0]scale2ref[scaled][ref];[ref][scaled]overlay=format=rgb[output]
+      proc.input(watermark).complexFilter(
+        [
+          // [1:0][0:0]scale2ref[scaled][ref];[ref][scaled]overlay=format=rgb[output]
           {
             filter: 'scale2ref',
             inputs: ['1:0', '0:0'],
@@ -240,7 +268,9 @@ module.exports = {
             inputs: ['ref', 'scaled'],
             outputs: 'output'
           }
-        ], 'output')
+        ],
+        'output'
+      )
       // .inputOption('-loop 1')
     }
     proc
@@ -336,23 +366,26 @@ module.exports = {
       .inputOptions('-vcodec qtrle')
       .audioCodec('libmp3lame')
       .videoCodec('libx264')
-      .complexFilter([
-
-        /*
+      .complexFilter(
+        [
+          /*
         // Duplicate rescaled stream 3 times into streams a, b, and c
         {
           filter: 'fade', options: 'out:25:24:alpha=1',
           inputs: '1:0', outputs: 'wm'
         }, */
 
-        // Create stream 'red' by removing green and blue channels from stream 'a'
-        {
-          filter: 'overlay',
-          options: 'format=rgb',
-          // inputs: ['0:0', 'wm'], outputs: 'output'
-          inputs: ['0:0', '1:0'],
-          outputs: 'output'
-        }], 'output')
+          // Create stream 'red' by removing green and blue channels from stream 'a'
+          {
+            filter: 'overlay',
+            options: 'format=rgb',
+            // inputs: ['0:0', 'wm'], outputs: 'output'
+            inputs: ['0:0', '1:0'],
+            outputs: 'output'
+          }
+        ],
+        'output'
+      )
       .on('end', function () {
         console.log('files have been overlayed succesfully')
         if (callback) return callback(null)
@@ -394,24 +427,35 @@ module.exports = {
         output0 = 'mix' + (i + 1)
       } else {
         input0 = 'mix' + (i * 2 - 1)
-        input1 = 'mix' + (i * 2)
+        input1 = 'mix' + i * 2
         output0 = 'mix' + (i * 2 + 1)
       }
 
       // st= time wher the fadein starts
       // d= duration of the fadein
-      complexFilter.push({
-        filter: 'format=pix_fmts=yuva420p,fade',
-        options: 'in:st=' + element[0] + ':d=' + fadeDuration + ':alpha=1,fade=out:st=' + element[1] + ':d=' + fadeDuration + ':alpha=1',
-        inputs: '1:0',
-        outputs: input1
-      },
-      {
-        filter: 'overlay',
-        options: 'format=rgb',
-        inputs: [input0, input1],
-        outputs: output0
-      })
+      complexFilter.push(
+        {
+          filter: 'format=pix_fmts=yuva420p,fade',
+          options:
+            'in:st=' +
+            element[0] +
+            ':d=' +
+            fadeDuration +
+            ':alpha=1,fade=out:st=' +
+            element[1] +
+            ':d=' +
+            fadeDuration +
+            ':alpha=1',
+          inputs: '1:0',
+          outputs: input1
+        },
+        {
+          filter: 'overlay',
+          options: 'format=rgb',
+          inputs: [input0, input1],
+          outputs: output0
+        }
+      )
     })
     complexFilter.push({
       filter: 'overlay',
@@ -442,5 +486,4 @@ module.exports = {
       .output(output)
       .run()
   }
-
 }

@@ -3,16 +3,22 @@ const spacebroClient = require('spacebro-client')
 var standardSettings = require('standard-settings')
 var settings = standardSettings.getSettings()
 
-spacebroClient.connect(settings.service.spacebro.host, settings.service.spacebro.port, {
-  client: {
-    name: settings.service.spacebro.client.name + '-test'
-  },
-  channelName: settings.service.spacebro.channelName,
-  verbose: false,
-  sendBack: false
-})
+spacebroClient.connect(
+  settings.service.spacebro.host,
+  settings.service.spacebro.port,
+  {
+    client: {
+      name: settings.service.spacebro.client.name + '-test'
+    },
+    channelName: settings.service.spacebro.channelName,
+    verbose: false,
+    sendBack: false
+  }
+)
 
-console.log(`Connecting to spacebro on ${settings.service.spacebro.host}:${settings.service.spacebro.port}`)
+console.log(
+  `Connecting to spacebro on ${settings.service.spacebro.host}:${settings.service.spacebro.port}`
+)
 
 spacebroClient.on('outVideo', function (data) {
   console.log(`video is ready: ${data.url}`)
@@ -20,14 +26,16 @@ spacebroClient.on('outVideo', function (data) {
 })
 
 spacebroClient.on('connect', () => {
-  console.log(`spacebro: ${settings.service.spacebro.client.name} connected to ${settings.service.spacebro.host}:${settings.service.spacebro.port}#${settings.service.spacebro.channelName}`)
+  console.log(
+    `spacebro: ${settings.service.spacebro.client.name} connected to ${settings.service.spacebro.host}:${settings.service.spacebro.port}#${settings.service.spacebro.channelName}`
+  )
   spacebroClient.emit('inMedia', {
     recipe: 'watermark',
-    input: 'example/calculatedmovements.mp4',
+    path: 'example/calculatedmovements.mp4',
     // meta: {watermark: 'example/pacman.mov'}
     // meta: {watermark: 'assets/watermark.png'}
     meta: {
-      Wwatermark: {
+      '//watermark': {
         path: 'assets/watermark.png',
         start: 0,
         end: 10,
@@ -46,5 +54,5 @@ spacebroClient.on('connect', () => {
       }
     }
   })
-  console.log('emit inMedia')
+  console.log('* - emited inMedia')
 })
