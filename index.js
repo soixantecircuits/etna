@@ -1,15 +1,15 @@
-var ffmpeg = require('fluent-ffmpeg')
-var fs = require('fs')
-var path = require('path')
+const ffmpeg = require('fluent-ffmpeg')
+const fs = require('fs')
+const path = require('path')
 // var config = require('./config.json')
-var mkdirp = require('mkdirp')
-var express = require('express')
-var exec = require('child_process').exec
-var moment = require('moment')
+const mkdirp = require('mkdirp')
+const express = require('express')
+const exec = require('child_process').exec
+const moment = require('moment')
 const SpacebroClient = require('spacebro-client').SpacebroClient
-var standardSettings = require('standard-settings')
-var packageInfos = require('./package.json')
-var uniquefilename = require('uniquefilename')
+const standardSettings = require('standard-settings')
+const packageInfos = require('./package.json')
+const uniquefilename = require('uniquefilename')
 const download = require('download')
 const { promisify } = require('util')
 const access = promisify(fs.access)
@@ -18,20 +18,20 @@ const deepIterator = require('deep-iterator').default
 const validUrl = require('valid-url')
 const filenamify = require('filenamify')
 
-var settings = standardSettings.getSettings()
+const settings = standardSettings.getSettings()
 
-var recipes = require('./recipes')
+const recipes = require('./recipes')
 
 mkdirp.sync(settings.folder.output)
 mkdirp.sync(settings.folder.tmp)
 
-var filename
+let filename
 if (process.argv.indexOf('-f') !== -1) {
   // does our flag exist?
   filename = process.argv[process.argv.indexOf('-f') + 1] // grab the next item
-  var jsonfile = JSON.parse(fs.readFileSync(filename, 'utf8'))
+  const jsonfile = JSON.parse(fs.readFileSync(filename, 'utf8'))
   if (jsonfile.edit.input && jsonfile.edit.output) {
-    var proc = ffmpeg()
+    const proc = ffmpeg()
       .audioCodec('libmp3lame')
       .on('end', function () {
         console.log('files have been merged succesfully')
@@ -52,10 +52,10 @@ if (process.argv.indexOf('-f') !== -1) {
   // process.exit(1)
 }
 
-var lastCommand
+let lastCommand
 
 // init static server to serve generated files
-var app = express()
+const app = express()
 app.use(express.static(settings.folder.output))
 
 const stateServe = require('./src/state-serve')
@@ -80,7 +80,7 @@ var spacebroClient = new SpacebroClient(settings.service.spacebro.host, settings
   sendBack: false
 })
 */
-var spacebroClient = new SpacebroClient()
+const spacebroClient = new SpacebroClient()
 
 console.log(
   `Connecting to spacebro on ${settings.service.spacebro.host}:${settings.service.spacebro.port}`
@@ -100,7 +100,7 @@ spacebroClient.on('disconnect', () => {
   console.error('spacebro: connection lost.')
 })
 
-var sendMedia = function (data) {
+const sendMedia = function (data) {
   if (
     data.input &&
     data.input.includes &&
@@ -118,7 +118,7 @@ var sendMedia = function (data) {
   console.log(data)
 }
 
-var getDuration = (path) => {
+const getDuration = (path) => {
   return new Promise((resolve) => {
     ffmpeg.ffprobe(path, function (err, metadata) {
       if (err) {
@@ -130,7 +130,7 @@ var getDuration = (path) => {
   })
 }
 
-var downloadWithCache = async function (url) {
+const downloadWithCache = async function (url) {
   const filename = filenamify(url)
   const filepath = path.join(settings.folder.tmpDownload, filename)
   if (!settings.cache) {
@@ -149,6 +149,7 @@ var downloadWithCache = async function (url) {
       try {
         await download(url, settings.folder.tmpDownload, { filename })
       } catch (err) {
+        console.error('an error occured while downloading with cache')
         throw err
       }
     } else {
@@ -158,7 +159,7 @@ var downloadWithCache = async function (url) {
   return filepath
 }
 
-var downloadFile = async function (data) {
+const downloadFile = async function (data) {
   if (data.url) {
     let exists = false
     if (data.path) {
@@ -180,7 +181,7 @@ var downloadFile = async function (data) {
   return data
 }
 
-var downloadFilesInMeta = async function (data) {
+const downloadFilesInMeta = async function (data) {
   const values = data.meta
   for (const { parent, key, value } of deepIterator(values)) {
     if (
@@ -201,7 +202,7 @@ var downloadFilesInMeta = async function (data) {
   return data
 }
 
-var setFilenames = async function (data) {
+const setFilenames = async function (data) {
   if (data.path && typeof data.input !== 'string') {
     data.input = data.path
   }
@@ -212,8 +213,8 @@ var setFilenames = async function (data) {
     data.output += '.mp4'
   } else {
     if (!data.output) {
-      var date = moment()
-      var timestampName = date.format('YYYY-MM-DDTHH-mm-ss-SSS') + '.mp4'
+      const date = moment()
+      const timestampName = date.format('YYYY-MM-DDTHH-mm-ss-SSS') + '.mp4'
       data.output = path.join(
         settings.folder.output,
         path.basename(timestampName)
@@ -227,7 +228,7 @@ var setFilenames = async function (data) {
   return data
 }
 
-var isImage = (data) => {
+const isImage = (data) => {
   if (data.filename) {
     if (data.filename.match(/png$/)) {
       return true
@@ -236,7 +237,7 @@ var isImage = (data) => {
   return false
 }
 
-var onInputReceived = async (data) => {
+const onInputReceived = async (data) => {
   try {
     console.log(
       `Received event ${
@@ -266,15 +267,15 @@ var onInputReceived = async (data) => {
     // breaks something else.
     delete data.input
     data = await downloadFile(data)
-    for (var key in data.details) {
+    for (const key in data.details) {
       await downloadFile(data.details[key])
     }
     data = await downloadFilesInMeta(data)
     // process
     data = await setFilenames(data)
     data.meta.etnaInput = etnaInput
-    var recipe = data.recipe || settings.recipe
-    var recipeFn = recipes.recipe(recipe)
+    const recipe = data.recipe || settings.recipe
+    const recipeFn = recipes.recipe(recipe)
     lastCommand = recipeFn(data, function () {
       // fs.rename(data.outputTempPath, data.output, function (err) {
       if (recipe !== 'addThumbnail') {
@@ -289,7 +290,7 @@ var onInputReceived = async (data) => {
             data.url = `http://${settings.server.host}:${
               settings.server.port
             }/${path.basename(data.output)}`
-            var meta = standardSettings.getMeta(data)
+            const meta = standardSettings.getMeta(data)
             if (meta.thumbnail) {
               data.input = data.output
               recipes.recipe('addThumbnail')(data, () => {
