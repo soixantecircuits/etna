@@ -17,6 +17,7 @@
     "download": "^8.0.0",
     "express": "^4.17.3",
     "fluent-ffmpeg": "^2.1.2",
+    "glob": "^7.2.0",
     "glob-promise": "^4.2.2",
     "lodash": "^4.17.21",
     "media-helper": "2.0.1",
@@ -28,15 +29,6 @@
     "standard-settings": "2.0.3",
     "uniquefilename": "^1.1.2",
     "valid-url": "^1.0.9"
-  },
-  "devDependencies": {
-    "eslint": "^7.32.0",
-    "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.2.0",
-    "nodemon": "^2.0.15",
-    "standard": "^16.0.4"
   },
   "repository": {
     "type": "git",
@@ -53,5 +45,13 @@
   "bugs": {
     "url": "https://github.com/soixantecircuits/etna/issues"
   },
-  "homepage": "https://github.com/soixantecircuits/etna#readme"
+  "homepage": "https://github.com/soixantecircuits/etna#readme",
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "nodemon": "^2.0.15"
+  }
 }

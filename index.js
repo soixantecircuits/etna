@@ -1,7 +1,6 @@
 const ffmpeg = require('fluent-ffmpeg')
 const fs = require('fs')
 const path = require('path')
-// var config = require('./config.json')
 const mkdirp = require('mkdirp')
 const express = require('express')
 const exec = require('child_process').exec
