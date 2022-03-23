@@ -1,11 +1,25 @@
+#etna
 services:
-  video:
+  etna:
+    #image: etna:latest
     build: .
+    container_name: etna
+    hostname: etna
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Paris
     volumes:
-      - ./settings:/application/settings
+      - ./settings:/app/settings:ro
       - ./tmp_folder:/tmp/etna/tmp
       - ./output_folder:/tmp/etna
-    restart: always
     ports:
-      - 36100:36100
-      - 3333:3333
+      - 36100:36100/tcp
+      - 3333:3333/tcp
+    networks:
+      - spacebro
+      - default
+
+networks:
+  default:
+  spacebro:
+    external: true
