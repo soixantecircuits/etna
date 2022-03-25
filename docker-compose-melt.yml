@@ -1,10 +1,10 @@
 #etna
 services:
-  etna:
+  etna-melt:
     #image: etna:latest
     build: .
-    container_name: etna
-    hostname: etna
+    container_name: etna-melt
+    hostname: etna-melt
     restart: unless-stopped
     environment:
       TZ: Europe/Paris
@@ -13,7 +13,7 @@ services:
       - ./tmp_folder:/tmp/etna/tmp
       - ./output_folder:/tmp/etna
     ports:
-      - 36100:36100/tcp
+      - 36101:36101/tcp
     networks:
       - spacebro
       - default
