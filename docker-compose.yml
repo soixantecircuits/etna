@@ -10,6 +10,9 @@ services:
       TZ: Europe/Paris
     volumes:
       - ./settings:/app/settings:ro
+      - /shares/nuwa_saved:/shares/nuwa_saved
+      - /shares/etna_share:/shares/etna_share
+      - /shares/nuwa_stabilized:/shares/nuwa_stabilized
       - ./tmp_folder:/tmp/etna/tmp
       - ./output_folder:/tmp/etna
     ports:
