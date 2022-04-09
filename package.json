@@ -22,7 +22,7 @@
     "lodash": "^4.17.21",
     "media-helper": "2.0.1",
     "mkdirp": "^1.0.4",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "recursive-readdir": "^2.2.2",
     "replace-ext": "^2.0.0",
     "spacebro-client": "^0.4.2",
